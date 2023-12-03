@@ -1,0 +1,55 @@
+.global-layout {
+  .header {
+    padding: 0 12px !important;
+    display: flex;
+    justify-content: space-between;
+
+    height: var(--headerHeight) !important;
+    line-height: var(--headerHeight) !important;
+
+    box-shadow: 0 5px 6px rgba(0, 0, 0, 0.06);
+    position: relative;
+    z-index: 10;
+    .left {
+      display: flex;
+      gap: 12px;
+
+      .logo {
+        .logo-img {
+          color: #30c6fa;
+          font-size: 22px;
+          animation: rotate 20s linear infinite;
+        }
+        .logo-text {
+          font-size: 18px;
+          margin-left: 6px;
+        }
+      }
+    }
+    .action-icon {
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px;
+      border-radius: 50%;
+      color: inherit;
+    }
+  }
+}
+
+.theme-dark {
+  .action-icon {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    &:hover {
+      background-color: #000 !important;
+    }
+  }
+}
+
+.theme-light {
+  .action-icon {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    &:hover {
+      background-color: #f5f5f5 !important;
+    }
+  }
+}
