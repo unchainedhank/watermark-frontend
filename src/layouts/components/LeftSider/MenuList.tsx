@@ -86,23 +86,23 @@ const MenuList: React.FC = () => {
   };
 
   const menuItems = useMemo(() => {
-    const makeMenuBadge = (menu: Menu.LeafMenuItemType | Menu.SubMenuType) => {
-      if (menu.badge) {
-        if (menu.badge === 'dot') {
-          return (
-            <Badge className="menu-item-badge" offset={[6, 0]} dot>
-              {menu.label}
-            </Badge>
-          );
-        }
-        return (
-          <Badge className="menu-item-badge" offset={[15, 0]} count={menu.badge}>
-            {menu.label}
-          </Badge>
-        );
-      }
-      return menu.label;
-    };
+    // const makeMenuBadge = (menu: Menu.LeafMenuItemType | Menu.SubMenuType) => {
+    //   if (menu.badge) {
+    //     if (menu.badge === 'dot') {
+    //       return (
+    //         <Badge className="menu-item-badge" offset={[6, 0]} dot>
+    //           {menu.label}
+    //         </Badge>
+    //       );
+    //     }
+    //     return (
+    //       <Badge className="menu-item-badge" offset={[15, 0]} count={menu.badge}>
+    //         {menu.label}
+    //       </Badge>
+    //     );
+    //   }
+    //   return menu.label;
+    // };
 
     const makeMenuItems = (
       menuList: Menu.MenuItemType[],
@@ -154,7 +154,7 @@ const MenuList: React.FC = () => {
             key: '',
             ...rawMenu,
             icon,
-            label: makeMenuBadge(rawMenu),
+            // label: makeMenuBadge(rawMenu),
             // 编译器在这里就会推断 menu 是属于 MenuItemGroupType 或 SubMenuType
             children: isSubMenu(rawMenu) ? makeMenuItems(rawMenu.children!, rawMenu) : undefined
           };

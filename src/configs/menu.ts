@@ -114,7 +114,6 @@ const MenuList: Menu.MenuItemType[] = [
         // 演示子页面不和父页面路径前缀一致时, 怎么去自动高亮菜单显示
         path: '/article/create',
         label: '发布文章',
-        hideInMenu: true,
         parent: '/article/list'
       },
       {
@@ -152,38 +151,38 @@ const MenuList: Menu.MenuItemType[] = [
   //     }
   //   ]
   // },
-  {
-    path: '/iframe',
-    label: '外部页面',
-    icon: 'icon-href',
-    permission: 'admin',
-    children: [
-      {
-        path: 'https://ant-design.antgroup.com/components/overview-cn',
-        label: 'antd文档(外链)',
-        icon: 'icon-document',
-        type: 'url'
-      },
-      {
-        path: 'https://ant-design.antgroup.com/components/overview-cn/',
-        label: 'antd文档(内嵌)',
-        icon: 'icon-document',
-        type: 'iframe'
-      },
-      {
-        path: 'https://www.xstnet.com',
-        label: '博客主页(内嵌)',
-        icon: 'icon-document',
-        type: 'iframe'
-      },
-      {
-        path: 'https://baidu.com',
-        label: '百度',
-        icon: 'icon-document',
-        type: 'iframe'
-      }
-    ]
-  },
+  // {
+  //   path: '/iframe',
+  //   label: '外部页面',
+  //   icon: 'icon-href',
+  //   permission: 'admin',
+  //   children: [
+  //     {
+  //       path: 'https://ant-design.antgroup.com/components/overview-cn',
+  //       label: 'antd文档(外链)',
+  //       icon: 'icon-document',
+  //       type: 'url'
+  //     },
+  //     {
+  //       path: 'https://ant-design.antgroup.com/components/overview-cn/',
+  //       label: 'antd文档(内嵌)',
+  //       icon: 'icon-document',
+  //       type: 'iframe'
+  //     },
+  //     {
+  //       path: 'https://www.xstnet.com',
+  //       label: '博客主页(内嵌)',
+  //       icon: 'icon-document',
+  //       type: 'iframe'
+  //     },
+  //     {
+  //       path: 'https://baidu.com',
+  //       label: '百度',
+  //       icon: 'icon-document',
+  //       type: 'iframe'
+  //     }
+  //   ]
+  // },
 
   {
     path: '/document',
