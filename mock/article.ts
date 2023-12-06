@@ -65,20 +65,3 @@ Mock.mock(/api\/article\/create/, 'post', (options) => {
   return data;
 });
 
-Mock.mock(/api\/article\/update/, 'post', (options) => {
-  const data = {
-    code: 0,
-    message: '更新成功'
-  };
-
-  return data;
-});
-
-Mock.mock(/api\/article\/delete/, 'post', (options) => {
-  const data = {
-    code: 0,
-    message: '删除成功'
-  };
-
-  return data;
-});

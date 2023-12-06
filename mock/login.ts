@@ -21,9 +21,31 @@ function createToken(data: { uid: number | any }) {
 // Mock.setup({
 //   timeout: '000-5000' // 延迟时间为 1-5 秒
 // });
+
+class UserInfo {
+  username: string;
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  department: string;
+  fingerPrint: string;
+
+  constructor() {
+    this.username = 'unchained';
+    this.fullName = 'han';
+    this.phoneNumber = '123123123';
+    this.email = '123@qq.com';
+    this.department = 'security';
+    this.fingerPrint = '0xfliobj2323rt1un';
+  }
+}
+
 Mock.mock(/api\/login/, 'post', ({ body }) => {
   const { username, password } = JSON.parse(body);
+  const userInfo = new UserInfo();
+
   if (username === 'admin') {
+
     if (password !== '123456') {
       return {
         code: -1,
@@ -34,7 +56,8 @@ Mock.mock(/api\/login/, 'post', ({ body }) => {
       code: 0,
       message: '登录成功',
       data: {
-        token: createToken({ uid: 1 })
+        token: createToken({ uid: 1 }),
+        userInfo: userInfo,
       }
     };
   }
@@ -43,7 +66,8 @@ Mock.mock(/api\/login/, 'post', ({ body }) => {
     code: 0,
     message: '登录成功',
     data: {
-      token: createToken({ uid: Random.natural(2, 10000) })
+      token: createToken({ uid: Random.natural(2, 10000) }),
+      userInfo: userInfo,
     }
   };
 });

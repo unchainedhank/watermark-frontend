@@ -9,14 +9,15 @@ Mock.mock(/api\/user\/info/, 'get', (options) => {
     message: 'ok',
     data: {
       id: 1,
-      username: 'admin',
-      nickname: '醉丶春风',
+      userName: 'admin',
       avatar: 'https://www.xstnet.com/static/images/head.gif',
       password: '',
-      gender: Random.natural(1, 2),
       email: 'shantongxu@qq.com',
-      mobile: '133xxxx3333',
-      roles: ['admin']
+      phoneNumber: '133xxxx3333',
+      roles: ['admin'],
+      fullName:"han",
+      department:"sec dept",
+      fingerPrint: '',
     }
   };
 

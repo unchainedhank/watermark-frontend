@@ -21,13 +21,25 @@ namespace Api {
     list: T extends Base ? T['response'][] : T[];
   }
 
+  interface UserInfo {
+    username: string;
+    fullName: string;
+    phoneNumber: string;
+    email: string;
+    department: string;
+    fingerPrint: string;
+  }
+
   // -----------------------------------------------------------------------------------------------
 
-  interface PostLogoin extends Base {
-    params: Required<Pick<Model.User, 'username' | 'password'>> & {
+
+
+  interface PostLogin extends Base {
+    params: Required<Pick<Model.User, 'userName' | 'password'>> & {
       remember: boolean;
     };
     response: {
+      userInfo: UserInfo;
       token: string;
     };
   }
@@ -38,11 +50,6 @@ namespace Api {
     };
   }
 
-  // 例子-获取用户列表
-  interface getUserList extends Base {
-    params: PaginateParams;
-    response: PaginateResponse<Model.User>;
-  }
 
   interface postCreateUser extends Base {
     params: Omit<Model.User, 'id'>;
@@ -55,40 +62,15 @@ namespace Api {
     params: Partial<Model.User> & Pick<Model.User, 'id'>;
   }
 
-  interface postDeleteUser extends Base {
-    params: { id: number | number[] };
-  }
 
   interface getArticleList extends Base {
     params: PaginateParams & KV;
     response: PaginateResponse<Model.Article>;
   }
 
-  interface getArticleDetail extends Base {
-    params: Pick<Model.Article, 'id'>;
-    response: Model.Article & {
-      content: Model.ArticleContent;
-    };
-  }
-
   interface postDeleteArticle extends Base {
     params: { id: number };
     response: any;
-  }
-
-  interface postCreateArticle extends Base {
-    params: Omit<Model.Article, keyof Model.CommonFields | 'id'> & {
-      comment_control: N[];
-      content: S;
-      markdown_content: S;
-      is_draft: N;
-    };
-  }
-
-  interface postUpdateArticle extends Base {
-    params: Model.Article & {
-      comment_control: N[];
-    };
   }
 
   interface getTodoList extends Base {
@@ -109,18 +91,4 @@ namespace Api {
     response: Model.TodoList;
   }
 
-  type CategoryTreeItem = Model.ArticleCategory & {
-    childref: CategoryTreeItem;
-  };
-  interface getCategoryTreeList extends Base {
-    response: CategoryTreeItem[];
-  }
-
-  interface postUpdateCategory extends Base {
-    params: Omit<Model.ArticleCategory, keyof Model.TimeFields>;
-  }
-
-  interface postCreateCategory extends Base {
-    params: Omit<Model.ArticleCategory, keyof Model.CommonFields>;
-  }
 }

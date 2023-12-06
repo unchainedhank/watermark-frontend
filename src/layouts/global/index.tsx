@@ -8,7 +8,6 @@ import { GlobalContext } from '@/contexts/Global';
 import { AxiosError } from 'axios';
 import { SettingContext } from '@/contexts/Setting';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import SmallScreenNotify from '../components/SmallScreenNotify';
 import MultitabLayout from '../multiTab';
 import SingleLaylut from '../singleTab';
 import MenuProvider, { MenuContext } from '@/contexts/Menu';
@@ -92,7 +91,7 @@ const GlobalLayout: React.FC = () => {
         className={`global-layout theme-${theme}`}
       >
         {multitabMode ? <MultitabLayout /> : <SingleLaylut />}
-        <SmallScreenNotify />
+        {/*<SmallScreenNotify />*/}
       </div>
     </MenuProvider>
   );

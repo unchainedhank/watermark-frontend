@@ -8,11 +8,11 @@ import PageLoading from '@/components/Loading/PageLoading';
 
 import { UserCenterPage, UserCenterUpdatePage } from '@/pages/UserCenter';
 import { NotFoundPage } from '@/pages/Error';
-import { ArticleCreatePage, ArticleUpdatePage, ArticleCategoryPage } from '@/pages/Article';
+import { ArticleCreatePage } from '@/pages/Article';
 
 import { iframeUrlPrefix } from '@/utils/iframe';
 
-const ArticleIndexPage = lazy(() => import('@/pages/Article/Index/index'));
+// const ArticleIndexPage = lazy(() => import('@/pages/Article/Index/index'));
 const LoginPage = lazy(() => import('@/pages/Login'));
 const DashboardPage = lazy(() => import('@/pages/Dashboard'));
 const IframePage = lazy(() => import('@/pages/Iframe'));
@@ -63,26 +63,18 @@ export function routeRules() {
           path: '/article',
           // element: <ArticleIndexPage />,
           children: [
-            {
-              index: true,
-              element: <Suspense children={<ArticleIndexPage />} />
-            },
-            {
-              path: '/article/list',
-              element: <Suspense children={<ArticleIndexPage />} />
-            },
-            {
-              path: '/article/category',
-              element: <ArticleCategoryPage />
-            },
+            // {
+            //   index: true,
+            //   element: <Suspense children={<ArticleIndexPage />} />
+            // },
+            // {
+            //   path: '/article/list',
+            //   element: <Suspense children={<ArticleIndexPage />} />
+            // },
             {
               path: '/article/create',
               element: <ArticleCreatePage />
             },
-            {
-              path: '/article/update/:id',
-              element: <ArticleUpdatePage />
-            }
           ]
         },
         {

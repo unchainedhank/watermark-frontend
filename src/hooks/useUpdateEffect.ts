@@ -8,7 +8,7 @@ const useUpdateEffect = (effect: React.EffectCallback, deps?: React.DependencyLi
   const firstRun = useRef(true);
 
   useEffect(() => {
-    if (firstRun.current === true) {
+    if (firstRun.current) {
       firstRun.current = false;
     } else {
       effect();
