@@ -1,5 +1,5 @@
 const Config = {
-  pageTitle: '后台管理系统模板',
+  pageTitle: '数字水印系统',
   pageTitlePrefix: '后台管理',
 
   tokenKey: 'Authorization',
