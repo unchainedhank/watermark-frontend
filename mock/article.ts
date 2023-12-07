@@ -81,7 +81,7 @@ const mockWaterConfigData = Mock.mock({
             "frameSize": 11,
             "rotate": 0,
             "privateKey": "1231231233",
-            "isDark": false,
+            "watermarkType": 'both',
 
         }
     ],

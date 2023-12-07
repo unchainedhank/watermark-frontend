@@ -1,4 +1,16 @@
-import {Button, ColorPicker, Form, Input, Select, Switch, Typography, Upload, Watermark} from 'antd';
+import {
+    Button,
+    ColorPicker, Flex,
+    Form,
+    Input, InputNumber, Modal,
+    Radio,
+    RadioChangeEvent,
+    Select,
+    Switch,
+    Typography,
+    Upload,
+    Watermark
+} from 'antd';
 import React, {useEffect, useMemo, useState} from 'react';
 import type {Color} from 'antd/es/color-picker';
 import {UploadOutlined} from '@ant-design/icons';
@@ -10,7 +22,7 @@ import {AxiosResponseHeaders, InternalAxiosRequestConfig, RawAxiosResponseHeader
 const {Paragraph} = Typography;
 
 interface WatermarkConfig {
-    isDark: boolean;
+    watermarkType: string;
     content: string;
     fontColor: string | Color;
     fontSize: number;
@@ -29,12 +41,12 @@ type TemplateType = {
     frameSize: number;
     rotate: number;
     privateKey: string;
-    isDark: boolean;
+    watermarkType: string;
 
 };
 
 const AddWaterMarkPage: React.FC = () => {
-// 生成文件操作按钮
+    const [watermarkConfigVisible, setWatermarkConfigVisible] = useState(true); // 控制显示隐藏
     const [form] = Form.useForm();
     const [watermarkConfig, setWatermarkConfig] = useState<WatermarkConfig>({
         content: 'pkc',
@@ -43,9 +55,9 @@ const AddWaterMarkPage: React.FC = () => {
         frameSize: 11,
         rotate: 0,
         privateKey: "",
-        isDark: true,
+        watermarkType: 'both',
     });
-    const {content, fontColor, fontSize, frameSize, rotate, privateKey, isDark} = watermarkConfig;
+    const {content, fontColor, fontSize, frameSize, rotate, privateKey, watermarkType} = watermarkConfig;
 
     const [templateOptions, setTemplateOptions] = useState<TemplateType[]>([]);
 
@@ -79,7 +91,7 @@ const AddWaterMarkPage: React.FC = () => {
                         frameSize: currentTemplateData.frameSize,
                         rotate: currentTemplateData.rotate,
                         privateKey: currentTemplateData.privateKey,
-                        isDark: currentTemplateData.isDark,
+                        watermarkType: currentTemplateData.watermarkType,
                         // 可能还有其他属性...
                     };
                     templateArray.push(template);
@@ -115,7 +127,7 @@ const AddWaterMarkPage: React.FC = () => {
                 frameSize: selectedTemplate.frameSize,
                 rotate: String(selectedTemplate.rotate), // 转换为字符串类型
                 privateKey: selectedTemplate.privateKey,
-                isDark: selectedTemplate.isDark,
+                watermarkType: selectedTemplate.watermarkType,
             });
 
             setWatermarkConfig({
@@ -125,7 +137,7 @@ const AddWaterMarkPage: React.FC = () => {
                 frameSize: selectedTemplate.frameSize,
                 rotate: selectedTemplate.rotate,
                 privateKey: selectedTemplate.privateKey,
-                isDark: selectedTemplate.isDark,
+                watermarkType: selectedTemplate.watermarkType,
 
             });
         }
@@ -134,21 +146,34 @@ const AddWaterMarkPage: React.FC = () => {
         console.log(`selected ${value}`);
     };
 
-
+    const [actualFontSize, setActualFontSize] = useState<number | null>(fontSize !== null ? fontSize : 1);
     const watermarkProps = useMemo(() => ({
         content: content,
         font: {
             color: typeof fontColor === 'string' ? fontColor : fontColor.toRgbString(),
-            fontSize,
+            fontSize: actualFontSize !== null ? actualFontSize : 1,
         },
         frameSize: frameSize,
         rotate: rotate,
         privateKey: privateKey,
-        isDark: isDark,
+        watermarkType: watermarkType,
+    }), [content, fontColor, actualFontSize, frameSize, rotate, privateKey, watermarkType]);
 
-    }), [watermarkConfig]);
+// 监听 fontSize 的变化
+    const handleFontSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newSize = e.target.value;
+        if (newSize === '') {
+            setActualFontSize(1); // 设置默认字体大小
+        } else {
+            const parsedSize = parseInt(newSize, 10);
+            if (!isNaN(parsedSize)) {
+                setActualFontSize(parsedSize);
+            }
+        }
+    };
 
     const onFinish = async (values: any) => {
+        console.log(values)
         let storedUserInfo = localStorage.getItem('userInfo');
         let darkConfig: AxiosRequestConfig = {
             headers: {
@@ -188,7 +213,7 @@ const AddWaterMarkPage: React.FC = () => {
                     console.error('Error:', error);
                 }
             } else {
-            //    提示失败
+                //    提示失败
             }
             console.log(res);
         })
@@ -204,11 +229,54 @@ const AddWaterMarkPage: React.FC = () => {
             data: values.file
         }
         await axios.post(
-            "/watermark/embed/invisible",
+            "/watermark/embed/visible",
             darkConfig,
         ).then((res) => {
             console.log(res);
             //    download(res)
+        })
+
+        let bothConfig: AxiosRequestConfig = {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('token'),
+            },
+            params: {
+                targetFingerprint: ['self'],
+            },
+            data: values.file
+        }
+        await axios.post(
+            "/watermark/embed/both",
+            darkConfig,
+        ).then((res) => {
+            // data: T;
+            // status: number;
+            // statusText: string;
+            // headers: RawAxiosResponseHeaders | AxiosResponseHeaders;
+            if (res.data.statusCode === 200) {
+                try {
+                    // 创建一个 Blob 对象，包含从服务器返回的文件数据
+                    const blob = new Blob([res.data.file], {
+                        type: res.headers['content-type'],
+                    });
+                    // 创建一个 URL 对象，指向该 Blob 对象
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    // 创建一个链接并模拟点击下载
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = '下载的文件名'; // 可以根据需要设置文件名
+                    document.body.appendChild(link);
+                    link.click();
+                    // 清理创建的 URL 对象
+                    window.URL.revokeObjectURL(downloadUrl);
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            } else {
+                //    提示失败
+            }
+            console.log(res);
         })
     };
 
@@ -216,10 +284,55 @@ const AddWaterMarkPage: React.FC = () => {
         console.log('Failed:', errorInfo);
     };
 
-    const switchWaterMarkType = (isDark: boolean) => {
-        console.log(`switch to ${isDark}`);
-    }
+    const [watermarkTypeSelect, setWatermarkTypeSelect] = useState(1);
+    const onTypeChange = (e: RadioChangeEvent) => {
+        console.log('radio checked', e.target.value);
+        setWatermarkTypeSelect(e.target.value);
+        setWatermarkConfigVisible(e.target.value !== 'invisible'); // 根据值来控制是否显示除了文件选项之外的表单项
+    };
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const handleSaveTemplate = () => {
+        setIsModalVisible(true);
+    };
+    const handleConfirmSave = async () => {
+        // 在这里执行保存模板的操作
+        try {
+            const values = await form.validateFields(); // 获取表单填写的所有字段值
+            console.log("表单内容", values);
+            const newTemplateData = {
+                // 根据实际情况构建新模板的数据
+                // 例如：id、name、content、fontColor、fontSize、frameSize、rotate、privateKey 等
+                // 使用 values 对象中对应的字段来填充
+            };
 
+            // 发送 POST 请求保存新模板数据
+            const response = await axios.post('/saveTemplate', newTemplateData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + localStorage.getItem('token'),
+                },
+            });
+
+            // 处理请求成功后的逻辑
+            if (response.status === 200) {
+                // 模板保存成功，可以添加一些提示或者其他操作
+                console.log('Template saved successfully!');
+            } else {
+                // 请求成功但是模板保存失败，可以添加错误提示或者其他操作
+                console.log('Failed to save template!');
+            }
+        } catch (error) {
+            // 处理异常情况
+            console.error('Error saving template:', error);
+        }
+        // 关闭对话框
+        setIsModalVisible(false);
+    };
+
+    const handleCancelSave = () => {
+        // 关闭对话框
+        setIsModalVisible(false);
+    };
 
     return (
 
@@ -243,7 +356,12 @@ const AddWaterMarkPage: React.FC = () => {
                     onFinishFailed={onFinishFailed}
                     autoComplete={"on"}
                 >
-                    <Form.Item name="template" label="Select Template">
+                    <Form.Item name={"file"} label={"文件"}>
+                        <Upload multiple={false} accept={".pdf,.doc"} maxCount={1}>
+                            <Button icon={<UploadOutlined/>}>点击上传</Button>
+                        </Upload>
+                    </Form.Item>
+                    <Form.Item name="template" label="选择模板">
                         <Select onChange={handleTemplateChange} placeholder="Select a template">
                             {templateOptions.length > 0 ? (
                                 templateOptions.map((template) => (
@@ -258,62 +376,103 @@ const AddWaterMarkPage: React.FC = () => {
                             )}
                         </Select>
                     </Form.Item>
-                    <Form.Item name={"isDark"} label={"水印类型"}>
-                        <Switch checkedChildren="暗水印" unCheckedChildren="明水印" defaultChecked
-                                onChange={switchWaterMarkType}/>
+                    <Form.Item name={"watermarkType"} label={"水印类型"}>
+                        <Radio.Group onChange={onTypeChange} value={watermarkTypeSelect}>
+                            <Radio value={'visible'}>明水印</Radio>
+                            <Radio value={'invisible'}>暗水印</Radio>
+                            <Radio value={'both'}>双重水印</Radio>
+                        </Radio.Group>
                     </Form.Item>
-                    <Form.Item name="content" label="自定义水印内容">
-                        <Input placeholder="pkc" showCount maxLength={20}/>
-                    </Form.Item>
-                    <Form.Item name="fontColor" label="字体颜色">
-                        <ColorPicker trigger={"hover"} defaultFormat={"rgb"} format={"rgb"} showText={true}/>
-                    </Form.Item>
-                    <Form.Item name="fontSize" label="字体大小">
-                        <Input/>
-                    </Form.Item>
-                    <Form.Item name="frameSize" label="水印框大小">
-                        <Input/>
-                    </Form.Item>
-                    <Form.Item name="rotate" label="水印角度">
-                        <Select
-                            // defaultValue=0
-                            // style={{ width: 120 }}
-                            onChange={rotateChange}
-                            options={[
-                                {value: '0', label: '0°'},
-                                {value: '30', label: '30°'},
-                                {value: '60', label: '60°'},
-                                {value: '90', label: '90°'},
-                                {value: '120', label: '120°'},
-                                {value: '150', label: '150°'},
-                                {value: '180', label: '180°'},
 
-                            ]}
-                        />
-                    </Form.Item>
+                    {watermarkConfigVisible && (
+                        <>
+                            <Form.Item name="content" label="自定义水印内容">
+                                <Input placeholder="pkc" showCount maxLength={20}/>
+                            </Form.Item>
+                            <Form.Item name="fontColor" label="字体颜色">
+                                <ColorPicker trigger={"hover"} defaultFormat={"rgb"} format={"rgb"} showText={true}/>
+                            </Form.Item>
+                            <Form.Item name="fontSize" label="字体大小"
+                                       rules={[
+                                           {
+                                               required: true,
+                                               message: "请输入字体大小",
+                                           },
+                                           {
+                                               type: "number",
+                                               min: 0,
+                                               message: '字体大小必须大于0',
+                                           }
+                                       ]}>
+                                <Input value={actualFontSize !== null ? actualFontSize.toString() : ''} onChange={handleFontSizeChange} />
+                            </Form.Item>
+                            <Form.Item name="frameSize" label="水印框大小" rules={[
+                                {
+                                    required: true,
+                                    message: "请输入水印框大小",
+                                },
+                                {
+                                    type: "number",
+                                    min: 0,
+                                    message: '水印框大小必须大于0',
+                                }
+                            ]}>
+                                <Input />
+                            </Form.Item>
+                            <Form.Item name="rotate" label="水印角度">
+                                <Select
+                                    // defaultValue=0
+                                    // style={{ width: 120 }}
+                                    onChange={rotateChange}
+                                    options={[
+                                        {value: '0', label: '0°'},
+                                        {value: '30', label: '30°'},
+                                        {value: '60', label: '60°'},
+                                        {value: '90', label: '90°'},
+                                        {value: '120', label: '120°'},
+                                        {value: '150', label: '150°'},
+                                        {value: '180', label: '180°'},
+
+                                    ]}
+                                />
+                            </Form.Item>
+                        </>
+                    )}
+
                     <Form.Item name="privateKey" label="密钥" rules={[
                         {
                             required: true,
                             message: "请输入密钥",
-                        }
+                        },
+                        {
+                            pattern: /^\d{10}$/,
+                            message: '密钥必须为10位数字',
+                        },
                     ]}>
                         <Input placeholder="10位数字" showCount maxLength={10}/>
                     </Form.Item>
-                    <Form.Item name={"file"} label={"文件"}>
-                        <Upload multiple={false} accept={".pdf,.doc"} maxCount={1}>
-                            <Button icon={<UploadOutlined/>}>点击上传</Button>
-                        </Upload>
-                    </Form.Item>
-                    <Form.Item wrapperCol={{offset: 8, span: 16}}>
-                        <Button type="primary" htmlType="submit">
-                            Submit
+                    <Flex gap={"large"}>
+                        <Form.Item >
+                            <Button type="primary" htmlType="submit" style={{ flex: 1 }}>
+                                提交
+                            </Button>
+                        </Form.Item>
+                        <Modal
+                            title="保存模板确认"
+                            visible={isModalVisible}
+                            onOk={handleConfirmSave}
+                            onCancel={handleCancelSave}
+                        >
+                            <p>确定要保存为新的模板吗</p>
+                        </Modal>
+
+                        <Button type="primary" onClick={handleSaveTemplate} style={{marginLeft: "auto"}}>
+                            保存为新的模板
                         </Button>
-                    </Form.Item>
+                    </Flex>
 
                 </Form>
-                <div>
 
-                </div>
 
                 {/* Watermark and Image */}
                 <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
