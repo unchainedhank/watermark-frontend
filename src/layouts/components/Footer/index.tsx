@@ -16,19 +16,19 @@ const Footer = () => {
 
   return (
     <Layout.Footer style={{ textAlign: 'center', paddingBottom: 4 }}>
-      <Text type="secondary">
-        React Admin Template
-        <Link
-          href="https://github.com/xstnet/react-admin-template"
-          target="_blank"
-          style={{ color: 'inherit', marginLeft: 5 }}
-        >
-          <GithubFilled />
-        </Link>
-      </Text>
+      {/*<Text type="secondary">*/}
+      {/*  React Admin Template*/}
+      {/*  <Link*/}
+      {/*    href="https://github.com/xstnet/react-admin-template"*/}
+      {/*    target="_blank"*/}
+      {/*    style={{ color: 'inherit', marginLeft: 5 }}*/}
+      {/*  >*/}
+      {/*    <GithubFilled />*/}
+      {/*  </Link>*/}
+      {/*</Text>*/}
       <br />
       <Link href="https://github.com/xstnet" target="_blank">
-        <Text type="secondary">醉丶春风</Text>
+        <Text type="secondary">信息工程研究所</Text>
       </Link>
       <Text type="secondary">
         ©2023 Created by
