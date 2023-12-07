@@ -101,30 +101,30 @@ const MenuList: Menu.MenuItemType[] = [
 
   {
     path: '/article',
-    label: '文章管理',
+    label: '水印服务',
     icon: 'icon-article',
     permission: 'admin',
     children: [
-      {
-        path: '/article/list',
-        label: '文章列表',
-        icon: 'icon-article'
-      },
+      // {
+      //   path: '/article/list',
+      //   label: '文章列表',
+      //   icon: 'icon-article'
+      // },
       {
         // 演示子页面不和父页面路径前缀一致时, 怎么去自动高亮菜单显示
         path: '/article/create',
-        label: '发布文章',
+        label: '添加水印',
         parent: '/article/list'
       },
-      {
-        path: '/article/update',
-        label: '更新文章',
-        hideInMenu: true,
-        parent: '/article/list'
-      },
+      // {
+      //   path: '/article/update',
+      //   label: '更新文章',
+      //   hideInMenu: true,
+      //   parent: '/article/list'
+      // },
       {
         path: '/article/category',
-        label: '分类管理',
+        label: '提取水印',
         icon: 'icon-list'
       }
     ]
