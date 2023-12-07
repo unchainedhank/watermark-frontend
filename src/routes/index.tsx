@@ -8,7 +8,8 @@ import PageLoading from '@/components/Loading/PageLoading';
 
 import { UserCenterPage, UserCenterUpdatePage } from '@/pages/UserCenter';
 import { NotFoundPage } from '@/pages/Error';
-import { ArticleCreatePage } from '@/pages/Article';
+import { AddWatermarkPage } from '@/pages/Article';
+import { ExtractWatermarkPage } from '@/pages/Article';
 
 import { iframeUrlPrefix } from '@/utils/iframe';
 
@@ -67,13 +68,13 @@ export function routeRules() {
             //   index: true,
             //   element: <Suspense children={<ArticleIndexPage />} />
             // },
-            // {
-            //   path: '/article/list',
-            //   element: <Suspense children={<ArticleIndexPage />} />
-            // },
+            {
+              path: '/article/category',
+              element: <Suspense children={<ExtractWatermarkPage />} />
+            },
             {
               path: '/article/create',
-              element: <ArticleCreatePage />
+              element: <AddWatermarkPage />
             },
           ]
         },

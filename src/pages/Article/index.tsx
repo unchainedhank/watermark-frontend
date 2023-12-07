@@ -1,1 +1,2 @@
-export { default as ArticleCreatePage } from './Create';
+export { default as AddWatermarkPage } from './Create';
+export { default as ExtractWatermarkPage } from './Extract';
