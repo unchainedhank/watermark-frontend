@@ -1,14 +1,16 @@
-import {Button, ColorPicker, Form, Input, Select, Typography, Upload, Watermark} from 'antd';
+import {Button, ColorPicker, Form, Input, Select, Switch, Typography, Upload, Watermark} from 'antd';
 import React, {useEffect, useMemo, useState} from 'react';
 import type {Color} from 'antd/es/color-picker';
 import {UploadOutlined} from '@ant-design/icons';
 import axios, {AxiosRequestConfig} from "axios";
 import {userInfo} from "os";
 import UserInfo = Api.UserInfo;
+import {AxiosResponseHeaders, InternalAxiosRequestConfig, RawAxiosResponseHeaders} from "axios/index";
 
 const {Paragraph} = Typography;
 
 interface WatermarkConfig {
+    isDark: boolean;
     content: string;
     fontColor: string | Color;
     fontSize: number;
@@ -17,10 +19,6 @@ interface WatermarkConfig {
     privateKey: string;
 }
 
-
-const rotateChange = (value: string) => {
-    console.log(`selected ${value}`);
-};
 
 type TemplateType = {
     id: string;
@@ -31,6 +29,8 @@ type TemplateType = {
     frameSize: number;
     rotate: number;
     privateKey: string;
+    isDark: boolean;
+
 };
 
 const AddWaterMarkPage: React.FC = () => {
@@ -43,18 +43,12 @@ const AddWaterMarkPage: React.FC = () => {
         frameSize: 11,
         rotate: 0,
         privateKey: "",
+        isDark: true,
     });
-    const {content, fontColor, fontSize, frameSize, rotate, privateKey} = watermarkConfig;
+    const {content, fontColor, fontSize, frameSize, rotate, privateKey, isDark} = watermarkConfig;
 
     const [templateOptions, setTemplateOptions] = useState<TemplateType[]>([]);
 
-    // useRequest(getTemplateData)
-    useEffect(() => {
-        // 这里监听templateOptions的变化
-        console.log('templateOptions changed:', templateOptions);
-        console.log('templateOptions type:', typeof templateOptions);
-        console.log('templateOptions len:', templateOptions.length);
-    }, [templateOptions]); // 当templateOptions变化时执行useEffect
     useEffect(() => {
         // Fetch template data from an API using axios POST request
         async function fetchData(uid: string) {
@@ -85,6 +79,7 @@ const AddWaterMarkPage: React.FC = () => {
                         frameSize: currentTemplateData.frameSize,
                         rotate: currentTemplateData.rotate,
                         privateKey: currentTemplateData.privateKey,
+                        isDark: currentTemplateData.isDark,
                         // 可能还有其他属性...
                     };
                     templateArray.push(template);
@@ -120,6 +115,7 @@ const AddWaterMarkPage: React.FC = () => {
                 frameSize: selectedTemplate.frameSize,
                 rotate: String(selectedTemplate.rotate), // 转换为字符串类型
                 privateKey: selectedTemplate.privateKey,
+                isDark: selectedTemplate.isDark,
             });
 
             setWatermarkConfig({
@@ -129,10 +125,14 @@ const AddWaterMarkPage: React.FC = () => {
                 frameSize: selectedTemplate.frameSize,
                 rotate: selectedTemplate.rotate,
                 privateKey: selectedTemplate.privateKey,
+                isDark: selectedTemplate.isDark,
+
             });
         }
     };
-
+    const rotateChange = (value: string) => {
+        console.log(`selected ${value}`);
+    };
 
 
     const watermarkProps = useMemo(() => ({
@@ -144,17 +144,68 @@ const AddWaterMarkPage: React.FC = () => {
         frameSize: frameSize,
         rotate: rotate,
         privateKey: privateKey,
+        isDark: isDark,
+
     }), [watermarkConfig]);
 
     const onFinish = async (values: any) => {
-        console.log('Success:', values);
-        let file = values.file;
-        console.log("file", file);
         let storedUserInfo = localStorage.getItem('userInfo');
-        console.log(storedUserInfo);
+        let darkConfig: AxiosRequestConfig = {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('token'),
+            },
+            params: {
+                targetFingerprint: ['self'],
+            },
+            data: values.file
+        }
         await axios.post(
-            "",
-            values,
+            "/watermark/embed/invisible",
+            darkConfig,
+        ).then((res) => {
+            // data: T;
+            // status: number;
+            // statusText: string;
+            // headers: RawAxiosResponseHeaders | AxiosResponseHeaders;
+            if (res.data.statusCode === 200) {
+                try {
+                    // 创建一个 Blob 对象，包含从服务器返回的文件数据
+                    const blob = new Blob([res.data.file], {
+                        type: res.headers['content-type'],
+                    });
+                    // 创建一个 URL 对象，指向该 Blob 对象
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    // 创建一个链接并模拟点击下载
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = '下载的文件名'; // 可以根据需要设置文件名
+                    document.body.appendChild(link);
+                    link.click();
+                    // 清理创建的 URL 对象
+                    window.URL.revokeObjectURL(downloadUrl);
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            } else {
+            //    提示失败
+            }
+            console.log(res);
+        })
+
+        let lightConfig: AxiosRequestConfig = {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('token'),
+            },
+            params: {
+                targetFingerprint: ['self'],
+            },
+            data: values.file
+        }
+        await axios.post(
+            "/watermark/embed/invisible",
+            darkConfig,
         ).then((res) => {
             console.log(res);
             //    download(res)
@@ -164,6 +215,10 @@ const AddWaterMarkPage: React.FC = () => {
     const onFinishFailed = (errorInfo: any) => {
         console.log('Failed:', errorInfo);
     };
+
+    const switchWaterMarkType = (isDark: boolean) => {
+        console.log(`switch to ${isDark}`);
+    }
 
 
     return (
@@ -202,6 +257,10 @@ const AddWaterMarkPage: React.FC = () => {
                                 </Select.Option>
                             )}
                         </Select>
+                    </Form.Item>
+                    <Form.Item name={"isDark"} label={"水印类型"}>
+                        <Switch checkedChildren="暗水印" unCheckedChildren="明水印" defaultChecked
+                                onChange={switchWaterMarkType}/>
                     </Form.Item>
                     <Form.Item name="content" label="自定义水印内容">
                         <Input placeholder="pkc" showCount maxLength={20}/>

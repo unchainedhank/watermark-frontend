@@ -65,10 +65,9 @@ Mock.mock(/api\/article\/create/, 'post', (options) => {
     return data;
 });
 
-const { Random } = Mock;
+const {Random} = Mock;
 
 const randomNumber = Random.integer(1, 5); // 随机长度为1到5
-
 
 
 const mockWaterConfigData = Mock.mock({
@@ -81,18 +80,28 @@ const mockWaterConfigData = Mock.mock({
             "fontSize": 30,
             "frameSize": 11,
             "rotate": 0,
-            "privateKey": "1231231233"
+            "privateKey": "1231231233",
+            "isDark": false,
+
         }
     ],
 });
 
 Mock.mock(/api\/getTemplates/, 'get', (options) => {
-  const data = {
-      code: 0,
-      message: 'ok',
-      data: mockWaterConfigData,
-  }
+    const data = {
+        code: 0,
+        message: 'ok',
+        data: mockWaterConfigData,
+    }
     return Mock.mock(data);
-  // if (options.)
-  // return Mock.mock(data)
+    // if (options.)
+    // return Mock.mock(data)
 })
+
+const MockWatermarkResult = Mock.mock({
+    "watermarkResult": {
+        "statusCode": "200",
+        "statusContent": "Success",
+        "file": "URL_OF_YOUR_WATERMARKED_FILE"
+    }
+});
