@@ -300,7 +300,7 @@ const AddWaterMarkPage: React.FC = () => {
                         <Input placeholder="10位数字" showCount maxLength={10}/>
                     </Form.Item>
                     <Form.Item name={"file"} label={"文件"}>
-                        <Upload multiple={true} accept={".pdf,.doc"}>
+                        <Upload multiple={false} accept={".pdf,.doc"} maxCount={1}>
                             <Button icon={<UploadOutlined/>}>点击上传</Button>
                         </Upload>
                     </Form.Item>
