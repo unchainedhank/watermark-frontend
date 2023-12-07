@@ -22,6 +22,7 @@ namespace Api {
   }
 
   interface UserInfo {
+    uid: string;
     username: string;
     fullName: string;
     phoneNumber: string;
@@ -90,5 +91,6 @@ namespace Api {
     params: Pick<Model.TodoList, 'name'>;
     response: Model.TodoList;
   }
+
 
 }

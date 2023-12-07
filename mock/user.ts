@@ -1,4 +1,6 @@
-import Mock, { Random } from 'mockjs';
+import Mock, {Random} from 'mockjs';
+import {Api} from "@/types/api";
+// import {Api} from "@/types/api";
 
 Mock.setup({
   timeout: 100
@@ -8,7 +10,7 @@ Mock.mock(/api\/user\/info/, 'get', (options) => {
     code: 0,
     message: 'ok',
     data: {
-      id: 1,
+      uid: 1,
       userName: 'admin',
       avatar: 'https://www.xstnet.com/static/images/head.gif',
       password: '',
@@ -24,13 +26,11 @@ Mock.mock(/api\/user\/info/, 'get', (options) => {
   return data;
 });
 
-Mock.mock(/api\/user\/logout/, 'post', (options) => {
-  const data = {
+Mock.mock(/api\/user\/logout/, 'post', () => {
+  return {
     code: 0,
     message: '退出成功'
   };
-
-  return data;
 });
 
 /**
@@ -86,32 +86,14 @@ Mock.mock(/api\/user\/list/, 'get', (options) => {
   return Mock.mock(data);
 });
 
-Mock.mock(/api\/user\/create/, 'post', (options) => {
-  const data = {
+Mock.mock(/api\/user\/create/, 'post', () => {
+  return {
     code: 0,
     message: '创建成功',
     data: {
       id: Random.natural(100, 9999)
     }
   };
-
-  return data;
 });
 
-Mock.mock(/api\/user\/update/, 'post', (options) => {
-  const data = {
-    code: 0,
-    message: '更新成功'
-  };
 
-  return data;
-});
-
-Mock.mock(/api\/user\/delete/, 'post', (options) => {
-  const data = {
-    code: 0,
-    message: '删除成功'
-  };
-
-  return data;
-});

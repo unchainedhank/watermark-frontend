@@ -23,6 +23,7 @@ function createToken(data: { uid: number | any }) {
 // });
 
 class UserInfo {
+  uid: string;
   username: string;
   fullName: string;
   phoneNumber: string;
@@ -31,6 +32,7 @@ class UserInfo {
   fingerPrint: string;
 
   constructor() {
+    this.uid = '123';
     this.username = 'unchained';
     this.fullName = 'han';
     this.phoneNumber = '123123123';

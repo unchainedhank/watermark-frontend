@@ -1,5 +1,3 @@
-import {TodoItemEnum} from "@/constants/enum";
-
 namespace Model {
     interface CommonFields {
         create_time: S;
