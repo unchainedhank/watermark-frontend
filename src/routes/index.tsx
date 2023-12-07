@@ -70,7 +70,7 @@ export function routeRules() {
             // },
             {
               path: '/article/category',
-              element: <Suspense children={<ExtractWatermarkPage />} />
+              element: <ExtractWatermarkPage />
             },
             {
               path: '/article/create',
