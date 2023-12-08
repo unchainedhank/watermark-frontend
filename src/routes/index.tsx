@@ -17,7 +17,7 @@ import { iframeUrlPrefix } from '@/utils/iframe';
 const LoginPage = lazy(() => import('@/pages/Login'));
 const DashboardPage = lazy(() => import('@/pages/Dashboard'));
 const IframePage = lazy(() => import('@/pages/Iframe'));
-
+const RegisterPage = lazy(() => import('@/pages/Register/Register'));
 const Suspense: React.FC<React.PropsWithChildren> = ({ children }) => (
   <React.Suspense fallback={<PageLoading />}>{children}</React.Suspense>
 );
@@ -25,10 +25,17 @@ const Suspense: React.FC<React.PropsWithChildren> = ({ children }) => (
 // todo: 页面错误降级
 export function routeRules() {
   const routes: RouteObject[] = [
+
     {
-      path: '/login',
+      path: '/Login',
       element: <Suspense children={<LoginPage />} />
     },
+    {
+      path:'/Register',
+      // element:<RegisterPage />
+      element:  <Suspense children={<RegisterPage />}/>
+    },
+
     {
       path: '/',
       element: <GlobalLayout />,
