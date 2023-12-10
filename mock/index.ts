@@ -4,3 +4,4 @@ import './user';
 import './article';
 import './todo';
 import './category';
+import './register'

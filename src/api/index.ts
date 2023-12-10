@@ -7,7 +7,9 @@ export const postLogin = (data: Api.PostLogin['params']) => {
 export const getUserInfo = (params?: Api.GetUserInfo['params']) => {
   return Http.get<Api.GetUserInfo>('/user/info', params);
 };
-
+export const postRegister =(data: KV | undefined) =>{
+  return Http.post('/register',data);
+}
 export const postLogout = () => {
   return Http.post<any>('/user/logout');
 };

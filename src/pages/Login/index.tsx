@@ -6,7 +6,7 @@ import { postLogin } from '@/api';
 import { useRequest } from 'ahooks';
 import './index.less';
 import Config from '@/configs';
-import { useNavigate } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import UserInfo = Api.UserInfo;
 
 interface IFormState {
@@ -109,6 +109,15 @@ const LoginPage: React.FC = () => {
                       登录
                     </Button>
                   </Form.Item>
+
+                  <Form.Item wrapperCol={{ offset: 5, span: 16 }}>
+                    <Link to="/register">
+                      <Button type="primary" htmlType="button">
+                        注册
+                      </Button>
+                    </Link>
+                  </Form.Item>
+
                 </Form>
               </Col>
             </Row>
