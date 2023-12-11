@@ -1,4 +1,4 @@
-import {Button, ColorPicker, Form, Input, Select, Switch, Typography, Upload, Watermark} from 'antd';
+import {Button, ColorPicker, Flex, Form, Image, Input, Select, Switch, Typography, Upload, Watermark} from 'antd';
 import React, {useEffect, useMemo, useState} from 'react';
 import type {Color} from 'antd/es/color-picker';
 import {UploadOutlined} from '@ant-design/icons';
@@ -13,15 +13,10 @@ const {Paragraph} = Typography;
 const ExtractWaterMarkPage: React.FC = () => {
 // 生成文件操作按钮
     const [form] = Form.useForm();
-
-
+    const [imageSrc, setImageSrc] = React.useState<string | undefined>(undefined);
 
     const onFinish = async (values: any) => {
         let config: AxiosRequestConfig = {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + localStorage.getItem('token'),
-            },
             data: values.file
         }
         await axios.post(
@@ -31,24 +26,12 @@ const ExtractWaterMarkPage: React.FC = () => {
             if (res.data.statusCode === 200) {
                 try {
                     // 创建一个 Blob 对象，包含从服务器返回的文件数据
-                    const blob = new Blob([res.data.file], {
-                        type: res.headers['content-type'],
-                    });
-                    // 创建一个 URL 对象，指向该 Blob 对象
-                    const downloadUrl = window.URL.createObjectURL(blob);
-                    // 创建一个链接并模拟点击下载
-                    const link = document.createElement('a');
-                    link.href = downloadUrl;
-                    link.download = '下载的文件名'; // 可以根据需要设置文件名
-                    document.body.appendChild(link);
-                    link.click();
-                    // 清理创建的 URL 对象
-                    window.URL.revokeObjectURL(downloadUrl);
+                    setImageSrc(URL.createObjectURL(new Blob([res.data.file])));
                 } catch (error) {
                     console.error('Error:', error);
                 }
             } else {
-            //    提示失败
+                //    提示失败
             }
             console.log(res);
         })
@@ -80,19 +63,25 @@ const ExtractWaterMarkPage: React.FC = () => {
                     onFinishFailed={onFinishFailed}
                     autoComplete={"on"}
                 >
+                    <Flex vertical={true} gap={"middle"}>
+                        <Form.Item name={"file"} label={"文件"} >
+                            <Upload multiple={false} accept={".pdf,.doc"} maxCount={1}>
+                                <Button style={{width:'120%'}} icon={<UploadOutlined/>}>点击上传</Button>
+                            </Upload>
+                        </Form.Item>
+                        <Form.Item>
+                            <Button type="primary" htmlType="submit" style={{width:'40%'}}>
+                                Submit
+                            </Button>
+                        </Form.Item>
+                    </Flex>
 
-                    <Form.Item name={"file"} label={"文件"}>
-                        <Upload multiple={false} accept={".pdf,.doc"} maxCount={1}>
-                            <Button icon={<UploadOutlined/>}>点击上传</Button>
-                        </Upload>
-                    </Form.Item>
-                    <Form.Item wrapperCol={{offset: 8, span: 16}}>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
 
                 </Form>
+
+                <Image width={200} height={200} src={imageSrc} fallback={"error"}>
+
+                </Image>
             </div>
         </div>
     );
