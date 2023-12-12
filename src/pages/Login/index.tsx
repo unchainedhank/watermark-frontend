@@ -1,6 +1,7 @@
 import React, {createContext, Dispatch, SetStateAction, useContext, useEffect, useState} from 'react';
-import { Button, Checkbox, Col, ConfigProvider, Form, Input, Row, theme, Typography } from 'antd';
+import { Button, Checkbox, Col, ConfigProvider, Form, Input, Row, theme, Typography ,Flex} from 'antd';
 import Cache from '@/utils/cache';
+import type {FlexProps} from "antd";
 import { validateToken } from '@/utils/jwt';
 import { postLogin } from '@/api';
 import { useRequest } from 'ahooks';
@@ -57,6 +58,9 @@ const LoginPage: React.FC = () => {
   //   value.password // xxxx
   // })
 
+  const tailLayout = {
+    wrapperCol: { offset: 4, span: 16 },
+  };
   const initialValues: Partial<IFormState> = {
     remember: true,
     username: 'admin',
@@ -104,15 +108,25 @@ const LoginPage: React.FC = () => {
                     <Checkbox>记住我</Checkbox>
                   </Form.Item>
 
-                  <Form.Item wrapperCol={{ offset: 5, span: 16 }}>
-                    <Button loading={loginRunning} type="primary" htmlType="submit">
-                      登录
-                    </Button>
-                  </Form.Item>
+                  {/*<Form.Item wrapperCol={{ offset: 5, span: 16 }}>*/}
+                  {/*  <Button loading={loginRunning} type="primary" htmlType="submit">*/}
+                  {/*    登录*/}
+                  {/*  </Button>*/}
+                  {/*</Form.Item>*/}
 
-                  <Form.Item wrapperCol={{ offset: 5, span: 16 }}>
+                  {/*<Form.Item wrapperCol={{ offset: 5, span: 16 } }>*/}
+                  {/*  <Link to="/register">*/}
+                  {/*    <Button type="primary" htmlType="button">*/}
+                  {/*      注册*/}
+                  {/*    </Button>*/}
+                  {/*  </Link>*/}
+                  {/*</Form.Item>*/}
+                  <Form.Item  {...tailLayout}>
+                    <Button loading={loginRunning} type="primary" htmlType="submit" >
+                      登录
+                    </Button  >
                     <Link to="/register">
-                      <Button type="primary" htmlType="button">
+                      <Button type="primary" htmlType="button"  style={{ margin: '0 25px' }}>
                         注册
                       </Button>
                     </Link>

@@ -68,6 +68,7 @@ export default function register(this: IFormState) {
         onError: (error) => {
         }
     });
+
     const onFinish = async (values: any) => {
         submit(values);
         console.log(values);
@@ -93,36 +94,59 @@ export default function register(this: IFormState) {
         // }
 
     };
-    return (
-        <div className="bg" style={{backgroundColor: '#333', fontSize: '20px'}}>
+    const formlayout={
+        borderRadius:' 10px',
+        backgroundColor: '#FFFFFF',
+        border: '2px solid #bfbfbf',
+        margin:'20px 20px 20px 40px',
+        width:'300px',
+        //height:'50px',
 
-            <div className="heard">
-                <Typography.Title style={{textAlign: 'center'}}>数字水印系统</Typography.Title>
+    };
+    return (
+        <div style={{backgroundColor: '#FFFFFF', fontSize: '10px'}}>
+            <div  >
+                <Typography.Title style={{textAlign: 'center',margin:'10px 10px'}}>数字水印系统</Typography.Title>
             </div>
-            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh'}}>
+            <div style={{display: 'flex', justifyContent: 'center',background:'#F5F5F5',overflow:'scroll',height:'800px'}}>
                 <Form<IFormState>
-                    labelCol={{span: 15}}
-                    wrapperCol={{span: 29}}
-                    style={{maxWidth: 1800}}
+                    labelCol={{span: 20}}
+                    wrapperCol={{span: 90}}
+                    style={{maxWidth: 3000}}
                     autoComplete="off"
                     name="register-form"
                     initialValues={initialValues}
+                    size="large"
                     onFinish={onFinish}
                     onFinishFailed={onFinishFailed}
+
                 >
                     <Form.Item
                         name="Uid"
                         rules={[{required: true, message: '账号'}]}
-                        style={{borderBottom: '1px solid #DCDCDC'}}
+
+                        // style={{borderRadius:' 0 10px 10px 0',
+                        //     backgroundColor: '#FFFFFF',
+                        //     border: '2px solid #bfbfbf',
+                        //     margin:'5px'
+                        // }}
+                        style={formlayout}
                     >
-                        <Input placeholder="请输入账号" bordered={false}/>
+                        <Input placeholder="请输入账号" bordered={false} />
                     </Form.Item>
                     <Form.Item
                         name="phone"
                         rules={[{required: true, message: '请输入手机号!'}, ]}
-                        style={{borderBottom: '1px solid #DCDCDC'}}
+                        // style={{borderRadius:' 10px',
+                        //     backgroundColor: '#FFFFFF',
+                        //     border: '2px solid #bfbfbf',
+                        //     margin:'20px',
+                        //     width:'400px',
+                        //     height:'50px'
+                        // }}
+                        style={formlayout}
                     >
-                        <Input placeholder="请输入手机号" bordered={false}/>
+                        <Input placeholder="请输入手机号" bordered={false} />
                     </Form.Item>
                     <Form.Item
                         name="Email"
@@ -130,21 +154,21 @@ export default function register(this: IFormState) {
                             type: 'email',
                             message: '请输入正确的邮箱',
                         }]}
-                        style={{borderBottom: '1px solid #DCDCDC'}}
+                        style={formlayout}
                     >
                         <Input placeholder="请输入邮箱" bordered={false}/>
                     </Form.Item>
                     <Form.Item
                         name="username"
                         rules={[{required: true, message: '用户名'}, {pattern: /^[a-zA-Z0-9_-]{4,16}$/,message:"'用户名应为4到16位（字母，数字，下划线，减号）'"}]}
-                        style={{borderBottom: '1px solid #DCDCDC'}}
+                        style={formlayout}
                     >
                         <Input placeholder="请输入用户名" bordered={false}/>
                     </Form.Item>
                     <Form.Item
                         name="department"
                         rules={[{required: true, message: '请设置部门!'}]}
-                        style={{borderBottom: '1px solid #DCDCDC'}}
+                        style={formlayout}
                     >
                         <Input placeholder="请设置部门" bordered={false}/>
                     </Form.Item>
@@ -157,7 +181,7 @@ export default function register(this: IFormState) {
                             // {validator: changePassword,
                             // message: "数字、大写字母、小写字母、特殊字符至少3种"}]}
                             ]}
-                        style={{borderBottom: '1px solid #DCDCDC'}}
+                        style={formlayout}
                     >
                         <Input.Password
                             bordered={false}
@@ -178,7 +202,7 @@ export default function register(this: IFormState) {
                             }),
                              // {validator: changePassCtf}
                         ]}
-                        style={{borderBottom: '1px solid #DCDCDC'}}
+                        style={formlayout}
                     >
                         <Input.Password
                             bordered={false}
@@ -191,18 +215,26 @@ export default function register(this: IFormState) {
                     <Form.Item
                         name="checked"
                         valuePropName="checked"
-                        style={{textAlign: 'left'}}
+                        style={{
+                            textAlign: 'left',
+                            margin:'0 0 20px 40px'
+                    }}
                         rules={[{required: true, message: '您必须同意用户服务协议!'}]}
                     >
                         <Checkbox style={{color: '#CCCCCC'}}>我已阅读并同意《<a>用户服务协议</a>》</Checkbox>
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" block style={{height: '56PX', borderRadius: '12PX'}}>
+                        <Button type="primary" htmlType="submit" block style={{height: '56PX', width:'300px',borderRadius: '12PX',margin:'0 0 0 40px'}}>
                             注册
                         </Button>
                     </Form.Item>
-                    <Form.Item>
+                    <Form.Item
+                        style={{
+                            textAlign: 'left',
+                            margin:'0 0 0 40px'
+                        }}
+                    >
                         已有帐号，<Link to="/index"><a href="#">点击登录</a></Link>
                     </Form.Item>
 
