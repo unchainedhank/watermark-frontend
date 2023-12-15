@@ -1,7 +1,8 @@
 import { Http } from '@/utils/http';
 
 export const postLogin = (data: Api.PostLogin['params']) => {
-  return Http.post<Api.PostLogin>('/login', data);
+  return Http.post<Api.PostLogin>('https://4024f85r48.picp.vip/user/login', data);
+  // return Http.post<Api.PostLogin>('/login', data);
 };
 
 export const getUserInfo = (params?: Api.GetUserInfo['params']) => {

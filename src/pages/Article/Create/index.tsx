@@ -2,10 +2,10 @@ import {
     Button,
     ColorPicker, Flex,
     Form,
-    Input, InputNumber, Modal,
+    Input, InputNumber, message, Modal,
     Radio,
     RadioChangeEvent,
-    Select,
+    Select, Spin,
     Switch,
     Typography,
     Upload,
@@ -69,7 +69,7 @@ const AddWaterMarkPage: React.FC = () => {
                 let config: AxiosRequestConfig = {
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: 'Bearer ' + localStorage.getItem('token'),
+                        // Authorization: 'Bearer ' + localStorage.getItem('token'),
                     },
                     params: {
                         id: uid, // 将用户的 uid 作为参数传递给请求
@@ -107,6 +107,7 @@ const AddWaterMarkPage: React.FC = () => {
 
         let storedUserInfo: UserInfo | null = null;
         const storedUserInfoString = localStorage.getItem('userInfo');
+        console.log(storedUserInfoString)
         if (storedUserInfoString) {
             storedUserInfo = JSON.parse(storedUserInfoString); // 将字符串解析为 UserInfo 对象
             if (storedUserInfo) {
@@ -172,119 +173,205 @@ const AddWaterMarkPage: React.FC = () => {
         }
     };
 
+    const [loading, setLoading] = useState(false);
+
     const onFinish = async (values: any) => {
-        console.log(values)
-        let storedUserInfo = localStorage.getItem('userInfo');
-        let darkConfig: AxiosRequestConfig = {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + localStorage.getItem('token'),
-            },
-            params: {
-                targetFingerprint: ['self'],
-            },
-            data: values.file
+
+        if (!values.file) {
+            message.error("请先上传文件");
         }
-        await axios.post(
-            "/watermark/embed/invisible",
-            darkConfig,
-        ).then((res) => {
-            // data: T;
-            // status: number;
-            // statusText: string;
-            // headers: RawAxiosResponseHeaders | AxiosResponseHeaders;
-            if (res.data.statusCode === 200) {
-                try {
-                    // 创建一个 Blob 对象，包含从服务器返回的文件数据
-                    const blob = new Blob([res.data.file], {
-                        type: res.headers['content-type'],
-                    });
+
+        if (watermarkTypeSelect == 'invisible') {
+            console.log("暗水印");
+            let darkConfig: AxiosRequestConfig = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                data: {
+                    targetFingerprint: "111",
+                    file: values.file.file.originFileObj,
+                }
+            };
+            // formData.append('file', values.file.fileList[0]);
+            console.log(darkConfig.data);
+            setLoading(true);
+            await axios.post(
+                "https://4024f85r48.picp.vip/watermark/embed/invisible",
+                darkConfig.data,
+                darkConfig
+            ).then((response) => {
+                console.log(response.data)
+                if (response.data) {
+                    const base64String = response.data; // 接收到的 base64 字符串
+                    // 将 base64 字符串解码为 ArrayBuffer
+                    const binaryString = window.atob(base64String);
+                    const binaryLen = binaryString.length;
+                    const bytes = new Uint8Array(binaryLen);
+                    for (let i = 0; i < binaryLen; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    const arrayBuffer = bytes.buffer;
+
+                    // 将 ArrayBuffer 转换为 Blob
+                    const blob = new Blob([arrayBuffer], {type: 'application/pdf'});
+
                     // 创建一个 URL 对象，指向该 Blob 对象
-                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const url = window.URL.createObjectURL(blob);
+
                     // 创建一个链接并模拟点击下载
                     const link = document.createElement('a');
-                    link.href = downloadUrl;
-                    link.download = '下载的文件名'; // 可以根据需要设置文件名
+                    link.href = url;
+                    link.download = response.data.fileName; // 设置文件名
                     document.body.appendChild(link);
                     link.click();
+                    message.success("水印添加成功，开始下载");
+
                     // 清理创建的 URL 对象
-                    window.URL.revokeObjectURL(downloadUrl);
-                } catch (error) {
-                    console.error('Error:', error);
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    message.error("水印添加失败");
+                }
+                setLoading(false);
+
+            });
+
+        }
+        else if (watermarkTypeSelect == 'visible') {
+            console.log("明水印");
+            console.log(values);
+            let rgb: string = "(255,255,255)";
+            let alpha: number = 1.0;
+
+            if (typeof values.fontColor === 'string') {
+                const regex = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/;
+                const matches = values.fontColor.match(regex);
+                if (matches) {
+                    const [, r, g, b, a] = matches;
+                    rgb = `(${r},${g},${b})`;
+                    alpha = a ? parseFloat(a) : 1.0;
                 }
             } else {
-                //    提示失败
+                rgb = values.fontColor.fontColor;
+                alpha = values.fontColor.alpha;
             }
-            console.log(res);
-        })
-
-        let lightConfig: AxiosRequestConfig = {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + localStorage.getItem('token'),
-            },
-            params: {
-                targetFingerprint: ['self'],
-            },
-            data: values.file
-        }
-        await axios.post(
-            "/watermark/embed/visible",
-            darkConfig,
-        ).then((res) => {
-            console.log(res);
-            //    download(res)
-        })
-
-        let bothConfig: AxiosRequestConfig = {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + localStorage.getItem('token'),
-            },
-            params: {
-                targetFingerprint: ['self'],
-            },
-            data: values.file
-        }
-        await axios.post(
-            "/watermark/embed/both",
-            darkConfig,
-        ).then((res) => {
-            // data: T;
-            // status: number;
-            // statusText: string;
-            // headers: RawAxiosResponseHeaders | AxiosResponseHeaders;
-            if (res.data.statusCode === 200) {
-                try {
-                    // 创建一个 Blob 对象，包含从服务器返回的文件数据
-                    const blob = new Blob([res.data.file], {
-                        type: res.headers['content-type'],
-                    });
+            let lightConfig: AxiosRequestConfig = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                data: {
+                    file: values.file.file.originFileObj,
+                    targetFingerprint: ['self'],
+                    content: values.content,
+                    fontSize: values.fontSize,
+                    fontColor: rgb,
+                    frameSize: values.frameSize,
+                    alpha: alpha * 100,
+                    angle: values.rotate,
+                    key: values.key,
+                }
+            };
+            console.log(lightConfig.data);
+            //插入loading
+            setLoading(true);
+            await axios.post(
+                "https://4024f85r48.picp.vip/watermark/embed/visible",
+                lightConfig.data,
+                lightConfig
+            ).then(response => {
+                if (response.data.fileName) {
+                    console.log(response.data);
+                    const base64String = response.data.base64String; // 接收到的 base64 字符串
+                    console.log(base64String);
+                    // 将 base64 字符串解码为 ArrayBuffer
+                    const binaryString = window.atob(base64String);
+                    const binaryLen = binaryString.length;
+                    const bytes = new Uint8Array(binaryLen);
+                    for (let i = 0; i < binaryLen; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    const arrayBuffer = bytes.buffer;
+                    let blob: any;
+                    if (values.file.file.type === 'application/pdf') {
+                        blob = new Blob([arrayBuffer], {type: 'application/pdf'});
+                    } else if (values.file.file.type == 'image/png') {
+                        blob = new Blob([arrayBuffer], {type: 'image/png'});
+                    }
+                    // 将 ArrayBuffer 转换为 Blob
                     // 创建一个 URL 对象，指向该 Blob 对象
-                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const url = window.URL.createObjectURL(blob);
+
                     // 创建一个链接并模拟点击下载
                     const link = document.createElement('a');
-                    link.href = downloadUrl;
-                    link.download = '下载的文件名'; // 可以根据需要设置文件名
+
+                    link.href = url;
+                    link.download = '数字符号.pdf'; // 设置文件名
                     document.body.appendChild(link);
                     link.click();
+
+                    message.success("添加水印成功，正在下载");
                     // 清理创建的 URL 对象
-                    window.URL.revokeObjectURL(downloadUrl);
-                } catch (error) {
-                    console.error('Error:', error);
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    message.error("添加水印失败");
                 }
-            } else {
-                //    提示失败
-            }
-            console.log(res);
-        })
+            //  结束loading
+                setLoading(false);
+            });
+
+        }
+        // else {
+        //     let bothConfig: AxiosRequestConfig = {
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             Authorization: 'Bearer ' + localStorage.getItem('token'),
+        //         },
+        //         params: {
+        //             targetFingerprint: ['self'],
+        //         },
+        //         data: values.file.originFileObj
+        //     };
+        //     await axios.post(
+        //         "/watermark/embed/both",
+        //         darkConfig,
+        //     ).then((res) => {
+        //         // data: T;
+        //         // status: number;
+        //         // statusText: string;
+        //         // headers: RawAxiosResponseHeaders | AxiosResponseHeaders;
+        //         if (res.data.statusCode === 200) {
+        //             try {
+        //                 // 创建一个 Blob 对象，包含从服务器返回的文件数据
+        //                 const blob = new Blob([res.data.file], {
+        //                     type: res.headers['content-type'],
+        //                 });
+        //                 // 创建一个 URL 对象，指向该 Blob 对象
+        //                 const downloadUrl = window.URL.createObjectURL(blob);
+        //                 // 创建一个链接并模拟点击下载
+        //                 const link = document.createElement('a');
+        //                 link.href = downloadUrl;
+        //                 link.download = '下载的文件名'; // 可以根据需要设置文件名
+        //                 document.body.appendChild(link);
+        //                 link.click();
+        //                 // 清理创建的 URL 对象
+        //                 window.URL.revokeObjectURL(downloadUrl);
+        //             } catch (error) {
+        //                 console.error('Error:', error);
+        //             }
+        //         } else {
+        //             //    提示失败
+        //         }
+        //         console.log(res);
+        //     })
+        // }
+
+
     };
 
     const onFinishFailed = (errorInfo: any) => {
         console.log('Failed:', errorInfo);
     };
 
-    const [watermarkTypeSelect, setWatermarkTypeSelect] = useState(1);
+    const [watermarkTypeSelect, setWatermarkTypeSelect] = useState('');
     const onTypeChange = (e: RadioChangeEvent) => {
         console.log('radio checked', e.target.value);
         setWatermarkTypeSelect(e.target.value);
@@ -334,9 +421,46 @@ const AddWaterMarkPage: React.FC = () => {
         setIsModalVisible(false);
     };
 
+    const handleCustomUpload = async (options: any) => {
+        const {file, onSuccess, onError} = options;
+
+        try {
+            // 处理上传文件：您可以在这里收集文件数据，并在提交表单时使用
+            console.log('文件已选择:', file);
+            form.setFieldValue("file", file);
+            // 在这里可以将文件数据添加到表单中（示例中未添加，您需要根据需要修改）
+
+            // 模拟成功上传，并调用 onSuccess 方法通知 Ant Design 上传成功
+            setTimeout(() => {
+                onSuccess("ok");
+            }, 1000); // 模拟延迟1秒钟，您可以删除此行代码，根据实际需求调用 onSuccess 或者 onError
+        } catch (error) {
+            console.error('上传失败:', error);
+            onError(error);
+        }
+    };
+
     return (
 
-        <div>
+        <div  style={{ position: 'relative' }}>
+            {loading && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)', // 半透明黑色背景
+                        zIndex: 9999,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Spin size="large" style={{fontSize: '50px'}} />
+                </div>
+            )}
             <div style={{display: 'flex', alignItems: 'flex-start', gap: '20px'}}>
                 {/* Form */}
                 <Form
@@ -357,7 +481,8 @@ const AddWaterMarkPage: React.FC = () => {
                     autoComplete={"on"}
                 >
                     <Form.Item name={"file"} label={"文件"}>
-                        <Upload multiple={false} accept={".pdf,.doc"} maxCount={1}>
+                        <Upload multiple={false} accept={".pdf,.doc,.jpg,.jpeg,.png,.svg"} maxCount={1}
+                                customRequest={handleCustomUpload}>
                             <Button icon={<UploadOutlined/>}>点击上传</Button>
                         </Upload>
                     </Form.Item>
@@ -398,13 +523,14 @@ const AddWaterMarkPage: React.FC = () => {
                                                required: true,
                                                message: "请输入字体大小",
                                            },
-                                           {
-                                               type: "number",
-                                               min: 0,
-                                               message: '字体大小必须大于0',
-                                           }
+                                           // {
+                                           //     type: "number",
+                                           //     min: 0,
+                                           //     message: '字体大小必须大于0',
+                                           // }
                                        ]}>
-                                <Input value={actualFontSize !== null ? actualFontSize.toString() : ''} onChange={handleFontSizeChange} />
+                                <Input value={actualFontSize !== null ? actualFontSize.toString() : ''}
+                                       onChange={handleFontSizeChange}/>
                             </Form.Item>
                             <Form.Item name="frameSize" label="水印框大小" rules={[
                                 {
@@ -417,7 +543,7 @@ const AddWaterMarkPage: React.FC = () => {
                                     message: '水印框大小必须大于0',
                                 }
                             ]}>
-                                <Input />
+                                <Input/>
                             </Form.Item>
                             <Form.Item name="rotate" label="水印角度">
                                 <Select
@@ -432,7 +558,6 @@ const AddWaterMarkPage: React.FC = () => {
                                         {value: '120', label: '120°'},
                                         {value: '150', label: '150°'},
                                         {value: '180', label: '180°'},
-
                                     ]}
                                 />
                             </Form.Item>
@@ -452,8 +577,8 @@ const AddWaterMarkPage: React.FC = () => {
                         <Input placeholder="10位数字" showCount maxLength={10}/>
                     </Form.Item>
                     <Flex gap={"large"}>
-                        <Form.Item >
-                            <Button type="primary" htmlType="submit" style={{ flex: 1 }}>
+                        <Form.Item>
+                            <Button type="primary" htmlType="submit" style={{flex: 1}}>
                                 提交
                             </Button>
                         </Form.Item>
@@ -476,20 +601,48 @@ const AddWaterMarkPage: React.FC = () => {
 
                 {/* Watermark and Image */}
                 <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
+
                     <Watermark {...watermarkProps}>
+                        <Typography>
+                            <Paragraph>
+                                水印效果预览：
+                            </Paragraph>
+                            <Paragraph>
+                                The light-speed iteration of the digital world makes products more complex. However,
+                                human consciousness and attention resources are limited. Facing this design
+                                contradiction, the pursuit of natural interaction will be the consistent direction of
+                                Ant Design.
+                            </Paragraph>
+                            <Paragraph>
+                                Natural user cognition: According to cognitive psychology, about 80% of external
+                                information is obtained through visual channels. The most important visual elements in
+                                the interface design, including layout, colors, illustrations, icons, etc., should fully
+                                absorb the laws of nature, thereby reducing the user&apos;s cognitive cost and bringing
+                                authentic and smooth feelings. In some scenarios, opportunely adding other sensory
+                                channels such as hearing, touch can create a richer and more natural product experience.
+                            </Paragraph>
+                            <Paragraph>
+                                Natural user behavior: In the interaction with the system, the designer should fully
+                                understand the relationship between users, system roles, and task objectives, and also
+                                contextually organize system functions and services. At the same time, a series of
+                                methods such as behavior analysis, artificial intelligence and sensors could be applied
+                                to assist users to make effective decisions and reduce extra operations of users, to
+                                save users&apos; mental and physical resources and make human-computer interaction more
+                                natural.
+                            </Paragraph>
+                        </Typography>
                         <img
                             style={{
                                 zIndex: 10,
-                                width: '100%',
-                                maxWidth: '800px',
+                                width: 'auto',
+                                display: 'block',
+                                maxWidth: '40%',
+                                margin: '0 auto',
                                 position: 'relative',
                             }}
                             src="https://gw.alipayobjects.com/mdn/rms_08e378/afts/img/A*zx7LTI_ECSAAAAAAAAAAAABkARQnAQ"
                             alt="示例图片"
                         />
-                        <Paragraph>
-                            段落开头：
-                        </Paragraph>
                     </Watermark>
                 </div>
 

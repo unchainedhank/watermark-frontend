@@ -7,6 +7,7 @@ import {useRequest} from "ahooks";
 import Cache from "@/utils/cache";
 import {Simulate} from "react-dom/test-utils";
 import submit = Simulate.submit;
+import axios from "axios";
 // const [messageApi,contextHolder]=message.useMessage();
 // const navigate = useNavigate()
 
@@ -15,8 +16,8 @@ const onFinishFailed = (values: any) => {
 }
 
 const initialValues: Partial<IFormState> = {
-    Uid: '',
-    Email: '',
+    uid: '',
+    email: '',
     phone: '',
     username: '',
     department: '',
@@ -26,8 +27,8 @@ const initialValues: Partial<IFormState> = {
 
 interface IFormState {
 
-    Uid: string;
-    Email: string;
+    uid: string;
+    email: string;
     phone: string;
     username: string
     department: string;
@@ -49,7 +50,14 @@ export default function register(this: IFormState) {
     //     }
     //     return Promise.resolve()
     // }
-
+    const changePhone = (rule: any, value: string) => {
+        const reg = /^(((\d{3,4}-)?[0-9]{7,8})|(1(3|4|5|6|7|8|9)\d{9}))$/
+        const flag = reg.test(value)
+        if (!flag) {
+            return Promise.reject('电话号码填写错误')
+        }
+        return Promise.resolve()
+    }
 // const handleRegister = () => {
     //     // 触发表单提交事件
     //     const formData = ref.current.getFieldValue();
@@ -58,20 +66,49 @@ export default function register(this: IFormState) {
     //
     // };
 
-    const {run: submit} = useRequest(postRegister, {
-        manual: true,
-        debounceWait: 300,
-        onSuccess: (data) => {
-            console.log(data);
-            navigate('/Login');
-        },
-        onError: (error) => {
-        }
-    });
+    // const {run: submit} = useRequest(postRegister, {
+    //     manual: true,
+    //     debounceWait: 300,
+    //     onSuccess: (data) => {
+    //         console.log(data);
+    //         navigate('/Login');
+    //     },
+    //     onError: (error) => {
+    //     }
+    // });
 
     const onFinish = async (values: any) => {
-        submit(values);
+        // submit(values);
+        console.log("原始表单信息：");
         console.log(values);
+        let registerConfig = {
+            data: {
+                uid: values.uid,
+                password: values.password,
+                username: values.username,
+                phone: values.phone,
+                email: values.email,
+                department: values.department,
+            },
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }
+        console.log("发送请求信息");
+        console.log(registerConfig.data)
+        await axios.post(
+            "https://4024f85r48.picp.vip/user/register",
+            registerConfig.data,
+            registerConfig
+        ).then(response => {
+            console.log(response);
+            if (response.data.statusCode == '200') {
+                navigate('/Login');
+                message.success("注册成功");
+            } else {
+                message.error("注册失败");
+            }
+        });
         // const [messageApi, contextHolder] = message.useMessage();
         // const navigate = useNavigate();
         // console.log('Received values of form: ', values);
@@ -94,21 +131,28 @@ export default function register(this: IFormState) {
         // }
 
     };
-    const formlayout={
-        borderRadius:' 10px',
-        backgroundColor: '#FFFFFF',
+    const formLayout = {
+        borderRadius: ' 10px',
+        backgroundColor: '#333',
         border: '2px solid #bfbfbf',
-        margin:'20px 20px 20px 40px',
-        width:'300px',
+        margin: '20px 20px 20px 40px',
+        width: '300px',
         //height:'50px',
 
     };
+
     return (
-        <div style={{backgroundColor: '#FFFFFF', fontSize: '10px'}}>
-            <div  >
-                <Typography.Title style={{textAlign: 'center',margin:'10px 10px'}}>数字水印系统</Typography.Title>
+        <div style={{backgroundColor: '#333', fontSize: '10px'}}>
+            <div>
+                <Typography.Title style={{textAlign: 'center', margin: '10px 10px'}}>数字水印系统</Typography.Title>
             </div>
-            <div style={{display: 'flex', justifyContent: 'center',background:'#F5F5F5',overflow:'scroll',height:'800px'}}>
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                background: '#2c2c2c',
+                overflow: 'scroll',
+                height: '800px'
+            }}>
                 <Form<IFormState>
                     labelCol={{span: 20}}
                     wrapperCol={{span: 90}}
@@ -122,21 +166,25 @@ export default function register(this: IFormState) {
 
                 >
                     <Form.Item
-                        name="Uid"
-                        rules={[{required: true, message: '账号'}]}
+                        name="uid"
+                        rules={[{required: true, message: '账号'}, {
+                            pattern: /^[a-zA-Z0-9_-]{4,16}$/,
+                            message: "'账号应为4到16位（字母，数字，下划线，减号）'"
+                        },
+                        ]}
 
                         // style={{borderRadius:' 0 10px 10px 0',
                         //     backgroundColor: '#FFFFFF',
                         //     border: '2px solid #bfbfbf',
                         //     margin:'5px'
                         // }}
-                        style={formlayout}
+                        style={formLayout}
                     >
-                        <Input placeholder="请输入账号" bordered={false} />
+                        <Input placeholder="请输入账号" bordered={false}/>
                     </Form.Item>
                     <Form.Item
                         name="phone"
-                        rules={[{required: true, message: '请输入手机号!'}, ]}
+                        rules={[{required: true, message: '请输入手机号!'}, {validator: changePhone}]}
                         // style={{borderRadius:' 10px',
                         //     backgroundColor: '#FFFFFF',
                         //     border: '2px solid #bfbfbf',
@@ -144,44 +192,50 @@ export default function register(this: IFormState) {
                         //     width:'400px',
                         //     height:'50px'
                         // }}
-                        style={formlayout}
+                        style={formLayout}
                     >
-                        <Input placeholder="请输入手机号" bordered={false} />
+                        <Input placeholder="请输入手机号" bordered={false}/>
                     </Form.Item>
                     <Form.Item
-                        name="Email"
-                        rules={[{required: true, message: '邮箱'},{
+                        name="email"
+                        rules={[{required: true, message: '邮箱'}, {
                             type: 'email',
                             message: '请输入正确的邮箱',
                         }]}
-                        style={formlayout}
+                        style={formLayout}
                     >
                         <Input placeholder="请输入邮箱" bordered={false}/>
                     </Form.Item>
                     <Form.Item
                         name="username"
-                        rules={[{required: true, message: '用户名'}, {pattern: /^[a-zA-Z0-9_-]{4,16}$/,message:"'用户名应为4到16位（字母，数字，下划线，减号）'"}]}
-                        style={formlayout}
+                        rules={[{required: true, message: '用户名不能为空'},
+                            {pattern: /^[a-zA-Z0-9_-]{4,16}$/, message: "'用户名应为4到16位（字母，数字，下划线，减号）'"},
+                            // {validator: changeUsername}
+                        ]}
+                        style={formLayout}
                     >
                         <Input placeholder="请输入用户名" bordered={false}/>
                     </Form.Item>
                     <Form.Item
                         name="department"
                         rules={[{required: true, message: '请设置部门!'}]}
-                        style={formlayout}
+                        style={formLayout}
                     >
                         <Input placeholder="请设置部门" bordered={false}/>
                     </Form.Item>
                     <Form.Item
                         name="password"
                         rules={[{required: true, message: '请设置密码!'},
-                            {type:"string", max:18},
-                            {type:"string", min:8},
-                            {pattern:/^((?=.*\d)(?=.*[a-z])(?=.*[A-Z])|(?=.*\d)(?=.*[A-Z])(?=.*[_!@#$%^&*()?=\[\]])|(?=.*\d)(?=.*[a-z])(?=.*[_!@#$%^&*()?=\[\]])|(?=.*[A-Z])(?=.*[a-z])(?=.*[_!@#$%^&*()?=\[\]])).{8,18}$/,message:"数字、大写字母、小写字母、特殊字符至少3种"},
+                            {type: "string", max: 18},
+                            {type: "string", min: 8},
+                            {
+                                pattern: /^((?=.*\d)(?=.*[a-z])(?=.*[A-Z])|(?=.*\d)(?=.*[A-Z])(?=.*[_!@#$%^&*()?=\[\]])|(?=.*\d)(?=.*[a-z])(?=.*[_!@#$%^&*()?=\[\]])|(?=.*[A-Z])(?=.*[a-z])(?=.*[_!@#$%^&*()?=\[\]])).{8,18}$/,
+                                message: "数字、大写字母、小写字母、特殊字符至少3种"
+                            },
                             // {validator: changePassword,
                             // message: "数字、大写字母、小写字母、特殊字符至少3种"}]}
-                            ]}
-                        style={formlayout}
+                        ]}
+                        style={formLayout}
                     >
                         <Input.Password
                             bordered={false}
@@ -192,7 +246,7 @@ export default function register(this: IFormState) {
                     <Form.Item
                         name="passwordcertificate"
                         rules={[{required: true, message: '请确认密码!'},
-                            ({ getFieldValue }) => ({
+                            ({getFieldValue}) => ({
                                 validator(_, value) {
                                     if (!value || getFieldValue('password') === value) {
                                         return Promise.resolve();
@@ -200,9 +254,9 @@ export default function register(this: IFormState) {
                                     return Promise.reject(new Error('两次输入的密码不匹配'));
                                 },
                             }),
-                             // {validator: changePassCtf}
+                            // {validator: changePassCtf}
                         ]}
-                        style={formlayout}
+                        style={formLayout}
                     >
                         <Input.Password
                             bordered={false}
@@ -217,22 +271,24 @@ export default function register(this: IFormState) {
                         valuePropName="checked"
                         style={{
                             textAlign: 'left',
-                            margin:'0 0 20px 40px'
-                    }}
+                            margin: '0 0 20px 40px'
+                        }}
                         rules={[{required: true, message: '您必须同意用户服务协议!'}]}
                     >
-                        <Checkbox style={{color: '#CCCCCC'}}>我已阅读并同意《<a>用户服务协议</a>》</Checkbox>
+                        <Checkbox style={{color: '#ffffff'}}>我已阅读并同意《<Link
+                            to={""}>用户服务协议</Link>》</Checkbox>
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" block style={{height: '56PX', width:'300px',borderRadius: '12PX',margin:'0 0 0 40px'}}>
+                        <Button type="primary" htmlType="submit" block
+                                style={{height: '56PX', width: '300px', borderRadius: '12PX', margin: '0 0 0 40px'}}>
                             注册
                         </Button>
                     </Form.Item>
                     <Form.Item
                         style={{
                             textAlign: 'left',
-                            margin:'0 0 0 40px'
+                            margin: '0 0 0 40px'
                         }}
                     >
                         已有帐号，<Link to="/index"><a href="#">点击登录</a></Link>
