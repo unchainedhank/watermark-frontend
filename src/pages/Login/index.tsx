@@ -11,7 +11,7 @@ import {Link, useNavigate} from 'react-router-dom';
 import UserInfo = Api.UserInfo;
 
 interface IFormState {
-  username: string;
+  uid: string;
   password: string;
   remember: boolean;
 }
@@ -63,7 +63,7 @@ const LoginPage: React.FC = () => {
   };
   const initialValues: Partial<IFormState> = {
     remember: true,
-    username: 'admin',
+    uid: 'admin',
     password: '123456'
   };
   return (
@@ -90,7 +90,7 @@ const LoginPage: React.FC = () => {
                 >
                   <Form.Item
                       label="用户名"
-                      name="username"
+                      name="uid"
                       rules={[{ required: true, message: '请输入用户名!' }]}
                   >
                     <Input placeholder="admin" />
@@ -122,11 +122,11 @@ const LoginPage: React.FC = () => {
                   {/*  </Link>*/}
                   {/*</Form.Item>*/}
                   <Form.Item  {...tailLayout}>
-                    <Button loading={loginRunning} type="primary" htmlType="submit" >
+                    <Button loading={loginRunning} type="primary" htmlType="submit"  >
                       登录
                     </Button  >
                     <Link to="/register">
-                      <Button type="primary" htmlType="button"  style={{ margin: '0 25px' }}>
+                      <Button type="primary" htmlType="button"  style={{ margin: '0 0 0 25px' }}>
                         注册
                       </Button>
                     </Link>
