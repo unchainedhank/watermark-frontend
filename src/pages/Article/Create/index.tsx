@@ -13,7 +13,7 @@ import {
 } from 'antd';
 import React, {useEffect, useMemo, useState} from 'react';
 import type {Color} from 'antd/es/color-picker';
-import {UploadOutlined} from '@ant-design/icons';
+import {DeleteOutlined, UploadOutlined} from '@ant-design/icons';
 import axios, {AxiosRequestConfig} from "axios";
 import {userInfo} from "os";
 import UserInfo = Api.UserInfo;
@@ -68,6 +68,7 @@ const AddWaterMarkPage: React.FC = () => {
         alpha = alpha / 100;
         return `rgba(${r},${g},${b},${alpha})`; // 构建 RGBA 格式字符串
     };
+
     async function getTemplateData(uid: string) {
         try {
             console.log("获取模板数据")
@@ -117,17 +118,24 @@ const AddWaterMarkPage: React.FC = () => {
         }
     }
 
+    let [storedUserInfo, setStoredUserInfo] = useState<UserInfo | null>();
     useEffect(() => {
         // 初始化的时候获取模板
 
-        let storedUserInfo: UserInfo | null = null;
         const storedUserInfoString = localStorage.getItem('userInfo');
-        console.log(storedUserInfoString)
         if (storedUserInfoString) {
-            storedUserInfo = JSON.parse(storedUserInfoString); // 将字符串解析为 UserInfo 对象
-            console.log("获取模板的uid");
             // @ts-ignore
-            console.log(storedUserInfo.uid);
+            console.log(storedUserInfoString);
+            let parseRes = JSON.parse(storedUserInfoString);
+            let temp: UserInfo = {
+                uid: parseRes.uid,
+                username: parseRes.username,
+                phone: parseRes.phone,
+                email: parseRes.email,
+                department: parseRes.department,
+            }
+            setStoredUserInfo(temp)
+            console.log(storedUserInfo)
             if (storedUserInfo) {
                 getTemplateData(storedUserInfo.uid);
             }
@@ -455,6 +463,7 @@ const AddWaterMarkPage: React.FC = () => {
     const handleSaveTemplate = () => {
         setIsModalVisible(true);
     };
+
     function hsvToRgb(h: number, s: number, v: number, alpha = 1) {
         let r, g, b;
         const c = v * s;
@@ -478,6 +487,7 @@ const AddWaterMarkPage: React.FC = () => {
 
         return `rgba(${Math.floor((r + m) * 255)}, ${Math.floor((g + m) * 255)}, ${Math.floor((b + m) * 255)}, ${alpha})`;
     }
+
     const handleConfirmSave = async () => {
         // 在这里执行保存模板的操作
         try {
@@ -504,19 +514,13 @@ const AddWaterMarkPage: React.FC = () => {
                 alpha = a ? parseFloat(a) : 1.0;
             }
 
-            const storedUserInfoString = localStorage.getItem('userInfo');
-            let storedUserInfo: { uid: string; };
-            if (storedUserInfoString) {
-                storedUserInfo= JSON.parse(storedUserInfoString); // 将字符串解析为 UserInfo 对象
-            }
-
 
             let newTemplateConfig: AxiosRequestConfig = {
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 data: {
-                    uid:storedUserInfo.uid,
+                    uid: storedUserInfo.uid,
                     name: templateName,
                     targetFingerprint: ['self'],
                     content: String(values.content),
@@ -534,7 +538,7 @@ const AddWaterMarkPage: React.FC = () => {
                 'https://4024f85r48.picp.vip/watermark/template/insert',
                 newTemplateConfig.data,
                 newTemplateConfig
-                ).then(res=>{
+            ).then(res => {
                 console.log("返回数据");
                 console.log(res);
                 if (res.data.statusCode == "200") {
@@ -586,7 +590,38 @@ const AddWaterMarkPage: React.FC = () => {
     };
 
 
+    const deleteOption = async (uid: string | undefined, templateId: number) => {
+        try {
+            let deleteConfig: AxiosRequestConfig = {
+                headers: {
+                    'contentType': 'application/json',
+                },
+                data: {
+                    uid: uid,
+                    templateId: templateId,
+                }
+            };
+            console.log("删除的请求", deleteConfig.data);
+            await axios.post(
+                "https://4024f85r48.picp.vip/watermark/template/delete",
+                deleteConfig.data,
+                deleteConfig
+            ).then(res => {
+                console.log(res);
+                if (res.data.statusCode === "200") {
+                    message.success("模板删除成功");
+                } else {
+                    message.error("模板删除失败");
+                }
+                getTemplateData(storedUserInfo?.uid);
+            });
+        } catch (error) {
+            message.error("模板删除失败");
+        }
+    };
+
     const [colorRgb, setColorRgb] = useState<Color | string>('rgb(22, 119, 255,0.5)');
+
 
     return (
 
@@ -648,18 +683,32 @@ const AddWaterMarkPage: React.FC = () => {
                     {(watermarkConfigVisible == 'visible' || watermarkConfigVisible == 'both') && (
                         <>
                             <Form.Item name="template" label="选择模板">
-                                <Select onChange={handleTemplateChange} placeholder="Select a template">
-                                    {templateOptions.length > 0 ? (
-                                        templateOptions.map((template) => (
-                                            <Select.Option key={template.id} value={template.id}>
-                                                {template.name}
+                                <Select onChange={handleTemplateChange} placeholder="选择模板" showSearch
+                                        filterOption={(inputValue, option) =>
+                                            option?.children?.toLowerCase().indexOf(inputValue.toLowerCase()) !== -1
+                                        } // 自定义搜索匹配规则
+                                        allowClear
+                                    // optionLabelProp={"value"}
+                                >
+                                    {
+                                        templateOptions.length > 0 ? (
+                                            templateOptions.map((template) => (
+                                                <Select.Option key={template.id} value={template.id}>
+                                                    <span>{template.name}</span>
+                                                    <span style={{float: "right"}}>
+                                                <DeleteOutlined
+                                                    onClick={() => {
+                                                        deleteOption(storedUserInfo?.uid, template.id);
+                                                    }}
+                                                />
+                                              </span>
+                                                </Select.Option>
+                                            ))
+                                        ) : (
+                                            <Select.Option value={null} disabled>
+                                                加载中
                                             </Select.Option>
-                                        ))
-                                    ) : (
-                                        <Select.Option value={null} disabled>
-                                            Loading...
-                                        </Select.Option>
-                                    )}
+                                        )}
                                 </Select>
                             </Form.Item>
                             <Form.Item name="content" label="自定义水印内容">
