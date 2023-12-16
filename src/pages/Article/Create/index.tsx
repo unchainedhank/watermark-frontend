@@ -18,6 +18,8 @@ import axios, {AxiosRequestConfig} from "axios";
 import {userInfo} from "os";
 import UserInfo = Api.UserInfo;
 import {AxiosResponseHeaders, InternalAxiosRequestConfig, RawAxiosResponseHeaders} from "axios/index";
+import {ColorFormat} from "antd/es/color-picker/interface";
+import {ColorFactory} from "antd/es/color-picker/color";
 
 const {Paragraph} = Typography;
 
@@ -33,21 +35,19 @@ interface WatermarkConfig {
 
 
 type TemplateType = {
-    id: string;
+    id: number;
     name: string;
     content: string;
-    fontColor: string;
+    fontColor: string | Color;
     fontSize: number;
     frameSize: number;
     rotate: number;
-    privateKey: string;
-    watermarkType: string;
-
 };
 
 const AddWaterMarkPage: React.FC = () => {
-    const [watermarkConfigVisible, setWatermarkConfigVisible] = useState(true); // 控制显示隐藏
+    const [watermarkConfigVisible, setWatermarkConfigVisible] = useState('visible'); // 控制显示隐藏
     const [form] = Form.useForm();
+    const [nameForm] = Form.useForm();
     const [watermarkConfig, setWatermarkConfig] = useState<WatermarkConfig>({
         content: 'pkc',
         fontColor: 'rgba(250, 0, 0, 0.9)',
@@ -55,51 +55,68 @@ const AddWaterMarkPage: React.FC = () => {
         frameSize: 11,
         rotate: 0,
         privateKey: "",
-        watermarkType: 'both',
+        watermarkType: 'visible',
     });
     const {content, fontColor, fontSize, frameSize, rotate, privateKey, watermarkType} = watermarkConfig;
 
     const [templateOptions, setTemplateOptions] = useState<TemplateType[]>([]);
 
+    const convertToRGBA = (rgbString: string, alpha: number) => {
+        const rgbValues = rgbString
+            .substring(1, rgbString.length - 1) // 去除括号
+            .split(',') // 分割 RGB 字符串为数组
+            .map((val) => parseInt(val, 10)); // 将字符串转为数字
+
+        const [r, g, b] = rgbValues; // 获取 R、G、B 值
+        alpha = alpha / 100;
+        return `rgba(${r},${g},${b},${alpha})`; // 构建 RGBA 格式字符串
+    };
+
     useEffect(() => {
-        // Fetch template data from an API using axios POST request
+        // 初始化的时候获取模板
         async function fetchData(uid: string) {
             try {
-                console.log("Fetching data")
-                let config: AxiosRequestConfig = {
+                console.log("获取模板数据")
+                let templateConfig: AxiosRequestConfig = {
                     headers: {
                         'Content-Type': 'application/json',
-                        // Authorization: 'Bearer ' + localStorage.getItem('token'),
                     },
-                    params: {
-                        id: uid, // 将用户的 uid 作为参数传递给请求
+                    data: {
+                        uid: uid, // 将用户的 uid 作为参数传递给请求
                     },
                 }
-                const response = await axios.get('/getTemplates', config);
-                let templateData = response.data.data.data;
-                console.log(templateData);
-                const templateArray: TemplateType[] = [];
-                for (let i = 0; i < templateData.length; i++) {
-                    const currentTemplateData = templateData[i]; // 获取当前模板数据对象
+                try {
+                    await axios.post(
+                        'https://4024f85r48.picp.vip/watermark/template/query',
+                        templateConfig.data,
+                        templateConfig).then(res => {
+                        if (res.data.statusCode == 200) {
+                            let templateData = res.data.queryresult;
+                            const templateArray: TemplateType[] = [];
+                            for (let i = 0; i < templateData.length; i++) {
+                                const currentTemplateData = templateData[i]; // 获取当前模板数据对象
 
-                    const template: TemplateType = {
-                        id: currentTemplateData.id,
-                        name: currentTemplateData.name,
-                        content: currentTemplateData.content,
-                        fontColor: currentTemplateData.fontColor,
-                        fontSize: currentTemplateData.fontSize,
-                        frameSize: currentTemplateData.frameSize,
-                        rotate: currentTemplateData.rotate,
-                        privateKey: currentTemplateData.privateKey,
-                        watermarkType: currentTemplateData.watermarkType,
-                        // 可能还有其他属性...
-                    };
-                    templateArray.push(template);
-                    console.log(i, template)
+                                let fontColorRgb = convertToRGBA(currentTemplateData.fontColor, currentTemplateData.alpha);
+                                const template: TemplateType = {
+                                    id: currentTemplateData.templateId,
+                                    name: currentTemplateData.name,
+                                    content: currentTemplateData.content,
+                                    fontSize: currentTemplateData.fontSize,
+                                    frameSize: currentTemplateData.frameSize,
+                                    rotate: currentTemplateData.angle,
+                                    fontColor: fontColorRgb,
+                                };
+                                templateArray.push(template);
+                                console.log(i, template)
+                            }
+                            setTemplateOptions(templateArray);
+                        } else {
+                            message.error("获取模板失败，请检查服务器连接");
+                        }
+                    });
+                } catch (e) {
+                    message.error("获取模板失败，请检查服务器连接");
                 }
-                console.log("templateArray", templateArray)
-                setTemplateOptions(templateArray);
-                console.log(templateOptions);
             } catch (error) {
                 console.error('Error fetching template data:', error);
             }
@@ -110,6 +127,9 @@ const AddWaterMarkPage: React.FC = () => {
         console.log(storedUserInfoString)
         if (storedUserInfoString) {
             storedUserInfo = JSON.parse(storedUserInfoString); // 将字符串解析为 UserInfo 对象
+            console.log("获取模板的uid");
+            // @ts-ignore
+            console.log(storedUserInfo.uid);
             if (storedUserInfo) {
                 fetchData(storedUserInfo.uid);
             }
@@ -118,8 +138,10 @@ const AddWaterMarkPage: React.FC = () => {
         }
     }, []);
 
-    const handleTemplateChange = (value: string) => {
+    const handleTemplateChange = (value: number) => {
         const selectedTemplate = templateOptions.find((template: TemplateType) => template.id === value);
+        console.log("选中的模板");
+        console.log(selectedTemplate);
         if (selectedTemplate) {
             form.setFieldsValue({
                 content: selectedTemplate.content,
@@ -127,8 +149,6 @@ const AddWaterMarkPage: React.FC = () => {
                 fontSize: selectedTemplate.fontSize,
                 frameSize: selectedTemplate.frameSize,
                 rotate: String(selectedTemplate.rotate), // 转换为字符串类型
-                privateKey: selectedTemplate.privateKey,
-                watermarkType: selectedTemplate.watermarkType,
             });
 
             setWatermarkConfig({
@@ -137,9 +157,8 @@ const AddWaterMarkPage: React.FC = () => {
                 fontSize: selectedTemplate.fontSize,
                 frameSize: selectedTemplate.frameSize,
                 rotate: selectedTemplate.rotate,
-                privateKey: selectedTemplate.privateKey,
-                watermarkType: selectedTemplate.watermarkType,
-
+                privateKey: '',
+                watermarkType: 'visible',
             });
         }
     };
@@ -180,6 +199,9 @@ const AddWaterMarkPage: React.FC = () => {
         if (!values.file) {
             message.error("请先上传文件");
         }
+        if (values.fontSize <= 0 || values.fontSize == undefined || values.fontSize.length == 0) {
+            message.error("水印字体大小必须大于0");
+        }
 
         if (watermarkTypeSelect == 'invisible') {
             console.log("暗水印");
@@ -195,49 +217,142 @@ const AddWaterMarkPage: React.FC = () => {
             // formData.append('file', values.file.fileList[0]);
             console.log(darkConfig.data);
             setLoading(true);
-            await axios.post(
-                "https://4024f85r48.picp.vip/watermark/embed/invisible",
-                darkConfig.data,
-                darkConfig
-            ).then((response) => {
-                console.log(response.data)
-                if (response.data) {
-                    const base64String = response.data; // 接收到的 base64 字符串
-                    // 将 base64 字符串解码为 ArrayBuffer
-                    const binaryString = window.atob(base64String);
-                    const binaryLen = binaryString.length;
-                    const bytes = new Uint8Array(binaryLen);
-                    for (let i = 0; i < binaryLen; i++) {
-                        bytes[i] = binaryString.charCodeAt(i);
+            try {
+                await axios.post(
+                    "https://4024f85r48.picp.vip/watermark/embed/invisible",
+                    darkConfig.data,
+                    darkConfig
+                ).then((response) => {
+                    console.log(response.data)
+                    if (response.data) {
+                        const base64String = response.data; // 接收到的 base64 字符串
+                        // 将 base64 字符串解码为 ArrayBuffer
+                        const binaryString = window.atob(base64String);
+                        const binaryLen = binaryString.length;
+                        const bytes = new Uint8Array(binaryLen);
+                        for (let i = 0; i < binaryLen; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                        }
+                        const arrayBuffer = bytes.buffer;
+
+                        // 将 ArrayBuffer 转换为 Blob
+                        const blob = new Blob([arrayBuffer], {type: 'application/pdf'});
+
+                        // 创建一个 URL 对象，指向该 Blob 对象
+                        const url = window.URL.createObjectURL(blob);
+
+                        // 创建一个链接并模拟点击下载
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = response.data.fileName; // 设置文件名
+                        document.body.appendChild(link);
+                        link.click();
+                        message.success("水印添加成功，开始下载");
+
+                        // 清理创建的 URL 对象
+                        window.URL.revokeObjectURL(url);
+                    } else {
+                        message.error("水印添加失败");
                     }
-                    const arrayBuffer = bytes.buffer;
-
-                    // 将 ArrayBuffer 转换为 Blob
-                    const blob = new Blob([arrayBuffer], {type: 'application/pdf'});
-
-                    // 创建一个 URL 对象，指向该 Blob 对象
-                    const url = window.URL.createObjectURL(blob);
-
-                    // 创建一个链接并模拟点击下载
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = response.data.fileName; // 设置文件名
-                    document.body.appendChild(link);
-                    link.click();
-                    message.success("水印添加成功，开始下载");
-
-                    // 清理创建的 URL 对象
-                    window.URL.revokeObjectURL(url);
-                } else {
-                    message.error("水印添加失败");
-                }
+                    setLoading(false);
+                });
+            } catch (error) {
+                message.error("暗水印添加错误");
+            } finally {
                 setLoading(false);
+            }
 
-            });
 
-        }
-        else if (watermarkTypeSelect == 'visible') {
-            console.log("明水印");
+        } else if (watermarkTypeSelect == 'visible') {
+            try {
+                console.log("明水印");
+                console.log(values);
+                let rgb: string = "(255,255,255)";
+                let alpha: number = 1.0;
+
+                if (typeof values.fontColor === 'string') {
+                    const regex = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/;
+                    const matches = values.fontColor.match(regex);
+                    if (matches) {
+                        const [, r, g, b, a] = matches;
+                        rgb = `(${r},${g},${b})`;
+                        alpha = a ? parseFloat(a) : 1.0;
+                    }
+                } else {
+                    rgb = values.fontColor.fontColor;
+                    alpha = values.fontColor.alpha;
+                }
+                let lightConfig: AxiosRequestConfig = {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    data: {
+                        file: values.file.file.originFileObj,
+                        targetFingerprint: ['self'],
+                        content: values.content,
+                        fontSize: values.fontSize,
+                        fontColor: rgb,
+                        frameSize: values.frameSize,
+                        alpha: alpha * 100,
+                        angle: values.rotate,
+                        key: values.key,
+                    }
+                };
+                console.log(lightConfig.data);
+                //插入loading
+                setLoading(true);
+                await axios.post(
+                    "https://4024f85r48.picp.vip/watermark/embed/visible",
+                    lightConfig.data,
+                    lightConfig
+                ).then(response => {
+                    if (response.data.fileName) {
+                        console.log(response.data);
+                        const base64String = response.data.base64String; // 接收到的 base64 字符串
+                        console.log(base64String);
+                        // 将 base64 字符串解码为 ArrayBuffer
+                        const binaryString = window.atob(base64String);
+                        const binaryLen = binaryString.length;
+                        const bytes = new Uint8Array(binaryLen);
+                        for (let i = 0; i < binaryLen; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                        }
+                        const arrayBuffer = bytes.buffer;
+                        let blob: any;
+                        if (values.file.file.type === 'application/pdf') {
+                            blob = new Blob([arrayBuffer], {type: 'application/pdf'});
+                        } else if (values.file.file.type == 'image/png') {
+                            blob = new Blob([arrayBuffer], {type: 'image/png'});
+                        }
+                        // 将 ArrayBuffer 转换为 Blob
+                        // 创建一个 URL 对象，指向该 Blob 对象
+                        const url = window.URL.createObjectURL(blob);
+
+                        // 创建一个链接并模拟点击下载
+                        const link = document.createElement('a');
+
+                        link.href = url;
+                        link.download = '数字符号.pdf'; // 设置文件名
+                        document.body.appendChild(link);
+                        link.click();
+
+                        message.success("添加水印成功，正在下载");
+                        // 清理创建的 URL 对象
+                        window.URL.revokeObjectURL(url);
+                    } else {
+                        message.error("添加水印失败");
+                    }
+                    //  结束loading
+                    setLoading(false);
+                });
+            } catch (error) {
+                message.error("明水印添加错误");
+            } finally {
+                setLoading(false);
+            }
+
+        } else {
+            console.log("双重水印");
             console.log(values);
             let rgb: string = "(255,255,255)";
             let alpha: number = 1.0;
@@ -254,7 +369,7 @@ const AddWaterMarkPage: React.FC = () => {
                 rgb = values.fontColor.fontColor;
                 alpha = values.fontColor.alpha;
             }
-            let lightConfig: AxiosRequestConfig = {
+            let bothConfig: AxiosRequestConfig = {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -270,144 +385,158 @@ const AddWaterMarkPage: React.FC = () => {
                     key: values.key,
                 }
             };
-            console.log(lightConfig.data);
+            console.log(bothConfig.data);
             //插入loading
             setLoading(true);
-            await axios.post(
-                "https://4024f85r48.picp.vip/watermark/embed/visible",
-                lightConfig.data,
-                lightConfig
-            ).then(response => {
-                if (response.data.fileName) {
-                    console.log(response.data);
-                    const base64String = response.data.base64String; // 接收到的 base64 字符串
-                    console.log(base64String);
-                    // 将 base64 字符串解码为 ArrayBuffer
-                    const binaryString = window.atob(base64String);
-                    const binaryLen = binaryString.length;
-                    const bytes = new Uint8Array(binaryLen);
-                    for (let i = 0; i < binaryLen; i++) {
-                        bytes[i] = binaryString.charCodeAt(i);
+            try {
+                await axios.post(
+                    "https://4024f85r48.picp.vip/watermark/embed/both",
+                    bothConfig.data,
+                    bothConfig
+                ).then(response => {
+                    console.log(response);
+                    if (response.data.fileName) {
+                        console.log(response.data);
+                        const base64String = response.data.base64String; // 接收到的 base64 字符串
+                        console.log(base64String);
+                        // 将 base64 字符串解码为 ArrayBuffer
+                        const binaryString = window.atob(base64String);
+                        const binaryLen = binaryString.length;
+                        const bytes = new Uint8Array(binaryLen);
+                        for (let i = 0; i < binaryLen; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                        }
+                        const arrayBuffer = bytes.buffer;
+                        let blob: any;
+                        if (values.file.file.type === 'application/pdf') {
+                            blob = new Blob([arrayBuffer], {type: 'application/pdf'});
+                        } else if (values.file.file.type == 'image/png') {
+                            blob = new Blob([arrayBuffer], {type: 'image/png'});
+                        }
+                        // 将 ArrayBuffer 转换为 Blob
+                        // 创建一个 URL 对象，指向该 Blob 对象
+                        const url = window.URL.createObjectURL(blob);
+
+                        // 创建一个链接并模拟点击下载
+                        const link = document.createElement('a');
+
+                        link.href = url;
+                        link.download = '数字符号.pdf'; // 设置文件名
+                        document.body.appendChild(link);
+                        link.click();
+
+                        message.success("添加水印成功，正在下载");
+                        // 清理创建的 URL 对象
+                        window.URL.revokeObjectURL(url);
+                    } else {
+                        message.error("添加水印失败");
                     }
-                    const arrayBuffer = bytes.buffer;
-                    let blob: any;
-                    if (values.file.file.type === 'application/pdf') {
-                        blob = new Blob([arrayBuffer], {type: 'application/pdf'});
-                    } else if (values.file.file.type == 'image/png') {
-                        blob = new Blob([arrayBuffer], {type: 'image/png'});
-                    }
-                    // 将 ArrayBuffer 转换为 Blob
-                    // 创建一个 URL 对象，指向该 Blob 对象
-                    const url = window.URL.createObjectURL(blob);
-
-                    // 创建一个链接并模拟点击下载
-                    const link = document.createElement('a');
-
-                    link.href = url;
-                    link.download = '数字符号.pdf'; // 设置文件名
-                    document.body.appendChild(link);
-                    link.click();
-
-                    message.success("添加水印成功，正在下载");
-                    // 清理创建的 URL 对象
-                    window.URL.revokeObjectURL(url);
-                } else {
-                    message.error("添加水印失败");
-                }
-            //  结束loading
+                    //  结束loading
+                    setLoading(false);
+                });
+            } catch (error) {
+                message.error("请求错误，添加水印失败");
+            } finally {
                 setLoading(false);
-            });
+            }
 
         }
-        // else {
-        //     let bothConfig: AxiosRequestConfig = {
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //             Authorization: 'Bearer ' + localStorage.getItem('token'),
-        //         },
-        //         params: {
-        //             targetFingerprint: ['self'],
-        //         },
-        //         data: values.file.originFileObj
-        //     };
-        //     await axios.post(
-        //         "/watermark/embed/both",
-        //         darkConfig,
-        //     ).then((res) => {
-        //         // data: T;
-        //         // status: number;
-        //         // statusText: string;
-        //         // headers: RawAxiosResponseHeaders | AxiosResponseHeaders;
-        //         if (res.data.statusCode === 200) {
-        //             try {
-        //                 // 创建一个 Blob 对象，包含从服务器返回的文件数据
-        //                 const blob = new Blob([res.data.file], {
-        //                     type: res.headers['content-type'],
-        //                 });
-        //                 // 创建一个 URL 对象，指向该 Blob 对象
-        //                 const downloadUrl = window.URL.createObjectURL(blob);
-        //                 // 创建一个链接并模拟点击下载
-        //                 const link = document.createElement('a');
-        //                 link.href = downloadUrl;
-        //                 link.download = '下载的文件名'; // 可以根据需要设置文件名
-        //                 document.body.appendChild(link);
-        //                 link.click();
-        //                 // 清理创建的 URL 对象
-        //                 window.URL.revokeObjectURL(downloadUrl);
-        //             } catch (error) {
-        //                 console.error('Error:', error);
-        //             }
-        //         } else {
-        //             //    提示失败
-        //         }
-        //         console.log(res);
-        //     })
-        // }
-
-
     };
 
     const onFinishFailed = (errorInfo: any) => {
-        console.log('Failed:', errorInfo);
+        message.error("水印请求提交错误，请检查表单");
     };
 
     const [watermarkTypeSelect, setWatermarkTypeSelect] = useState('');
     const onTypeChange = (e: RadioChangeEvent) => {
         console.log('radio checked', e.target.value);
         setWatermarkTypeSelect(e.target.value);
-        setWatermarkConfigVisible(e.target.value !== 'invisible'); // 根据值来控制是否显示除了文件选项之外的表单项
+        setWatermarkConfigVisible(e.target.value); // 根据值来控制是否显示除了文件选项之外的表单项
     };
     const [isModalVisible, setIsModalVisible] = useState(false);
     const handleSaveTemplate = () => {
         setIsModalVisible(true);
     };
+    function hsvToRgb(h: number, s: number, v: number, alpha = 1) {
+        let r, g, b;
+        const c = v * s;
+        const hp = h / 60;
+        const x = c * (1 - Math.abs((hp % 2) - 1));
+        const m = v - c;
+
+        if (hp >= 0 && hp < 1) {
+            [r, g, b] = [c, x, 0];
+        } else if (hp >= 1 && hp < 2) {
+            [r, g, b] = [x, c, 0];
+        } else if (hp >= 2 && hp < 3) {
+            [r, g, b] = [0, c, x];
+        } else if (hp >= 3 && hp < 4) {
+            [r, g, b] = [0, x, c];
+        } else if (hp >= 4 && hp < 5) {
+            [r, g, b] = [x, 0, c];
+        } else {
+            [r, g, b] = [c, 0, x];
+        }
+
+        return `rgba(${Math.floor((r + m) * 255)}, ${Math.floor((g + m) * 255)}, ${Math.floor((b + m) * 255)}, ${alpha})`;
+    }
     const handleConfirmSave = async () => {
         // 在这里执行保存模板的操作
         try {
             const values = await form.validateFields(); // 获取表单填写的所有字段值
+            const templateName = nameForm.getFieldValue('templateName');
             console.log("表单内容", values);
-            const newTemplateData = {
-                // 根据实际情况构建新模板的数据
-                // 例如：id、name、content、fontColor、fontSize、frameSize、rotate、privateKey 等
-                // 使用 values 对象中对应的字段来填充
-            };
+            console.log("当前颜色：", values.fontColor);
+            let rgb: string = "(255,255,255)";
+            let alpha: number = 1.0;
+            // let metaColor = values.fontColor.metaColor;
+            // const rgbaValue = hsvToRgb(metaColor.originalInput.h, metaColor.originalInput.s, metaColor.originalInput.v, metaColor.roundA);
 
-            // 发送 POST 请求保存新模板数据
-            const response = await axios.post('/saveTemplate', newTemplateData, {
+            const regex = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/;
+            const matches = values.fontColor.match(regex);
+            if (matches) {
+                const [, r, g, b, a] = matches;
+                rgb = `(${r},${g},${b})`;
+                alpha = a ? parseFloat(a) : 1.0;
+            }
+
+            const storedUserInfoString = localStorage.getItem('userInfo');
+            let storedUserInfo;
+            if (storedUserInfoString) {
+                storedUserInfo= JSON.parse(storedUserInfoString); // 将字符串解析为 UserInfo 对象
+            }
+
+
+            let newTemplateConfig: AxiosRequestConfig = {
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: 'Bearer ' + localStorage.getItem('token'),
                 },
+                data: {
+                    uid:storedUserInfo.uid,
+                    name: templateName,
+                    targetFingerprint: ['self'],
+                    content: values.content,
+                    fontSize: values.fontSize,
+                    fontColor: rgb,
+                    frameSize: values.frameSize,
+                    alpha: String(alpha * 100),
+                    angle: values.rotate,
+                }
+            };
+            console.log("请求数据");
+            console.log(newTemplateConfig.data);
+
+            await axios.post('https://4024f85r48.picp.vip/watermark/template/insert',
+                newTemplateConfig, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }).then(res=>{
+                console.log("返回数据");
+                console.log(res);
             });
 
             // 处理请求成功后的逻辑
-            if (response.status === 200) {
-                // 模板保存成功，可以添加一些提示或者其他操作
-                console.log('Template saved successfully!');
-            } else {
-                // 请求成功但是模板保存失败，可以添加错误提示或者其他操作
-                console.log('Failed to save template!');
-            }
         } catch (error) {
             // 处理异常情况
             console.error('Error saving template:', error);
@@ -426,23 +555,31 @@ const AddWaterMarkPage: React.FC = () => {
 
         try {
             // 处理上传文件：您可以在这里收集文件数据，并在提交表单时使用
-            console.log('文件已选择:', file);
             form.setFieldValue("file", file);
+            message.success("文件上传成功");
             // 在这里可以将文件数据添加到表单中（示例中未添加，您需要根据需要修改）
-
             // 模拟成功上传，并调用 onSuccess 方法通知 Ant Design 上传成功
-            setTimeout(() => {
-                onSuccess("ok");
-            }, 1000); // 模拟延迟1秒钟，您可以删除此行代码，根据实际需求调用 onSuccess 或者 onError
         } catch (error) {
-            console.error('上传失败:', error);
+            message.error("文件上传失败");
             onError(error);
         }
     };
 
+    const beforeUpload = (file: any) => {
+        const maxSize = 50 * 1024 * 1024; // 5MB, 可以根据需求修改限制的文件大小
+        if (file.size > maxSize) {
+            message.error('文件大小超过限制（最大限制为5MB）');
+            return false; // 返回 false 可以阻止文件上传
+        }
+        return true; // 允许文件上传
+    };
+
+
+    const [colorRgb, setColorRgb] = useState<Color | string>('rgb(22, 119, 255,0.5)');
+
     return (
 
-        <div  style={{ position: 'relative' }}>
+        <div style={{position: 'relative'}}>
             {loading && (
                 <div
                     style={{
@@ -458,7 +595,9 @@ const AddWaterMarkPage: React.FC = () => {
                         alignItems: 'center',
                     }}
                 >
-                    <Spin size="large" style={{fontSize: '50px'}} />
+                    <Spin size="large" style={{fontSize: '50px'}}/>
+                    <span style={{fontSize: '20px', marginTop: '10px', color: '#079c5c'}}>添加水印中，请稍等...</span>
+
                 </div>
             )}
             <div style={{display: 'flex', alignItems: 'flex-start', gap: '20px'}}>
@@ -472,7 +611,7 @@ const AddWaterMarkPage: React.FC = () => {
                     form={form}
                     layout="vertical"
                     initialValues={watermarkConfig}
-                    onValuesChange={(changedValues, allValues) => {
+                    onValuesChange={(changedValues) => {
                         // 使用spread operator将改变的值合并到现有配置中
                         setWatermarkConfig(prevConfig => ({...prevConfig, ...changedValues}));
                     }}
@@ -482,7 +621,7 @@ const AddWaterMarkPage: React.FC = () => {
                 >
                     <Form.Item name={"file"} label={"文件"}>
                         <Upload multiple={false} accept={".pdf,.doc,.jpg,.jpeg,.png,.svg"} maxCount={1}
-                                customRequest={handleCustomUpload}>
+                                customRequest={handleCustomUpload} beforeUpload={beforeUpload}>
                             <Button icon={<UploadOutlined/>}>点击上传</Button>
                         </Upload>
                     </Form.Item>
@@ -509,13 +648,16 @@ const AddWaterMarkPage: React.FC = () => {
                         </Radio.Group>
                     </Form.Item>
 
-                    {watermarkConfigVisible && (
+                    {(watermarkConfigVisible == 'visible' || watermarkConfigVisible == 'both') && (
                         <>
                             <Form.Item name="content" label="自定义水印内容">
                                 <Input placeholder="pkc" showCount maxLength={20}/>
                             </Form.Item>
                             <Form.Item name="fontColor" label="字体颜色">
-                                <ColorPicker trigger={"hover"} defaultFormat={"rgb"} format={"rgb"} showText={true}/>
+                                <ColorPicker
+                                    value={colorRgb} // 受控属性 value
+                                    onChange={setColorRgb}
+                                    trigger={"hover"} defaultFormat={"rgb"} format={"rgb"} showText={true}/>
                             </Form.Item>
                             <Form.Item name="fontSize" label="字体大小"
                                        rules={[
@@ -564,18 +706,24 @@ const AddWaterMarkPage: React.FC = () => {
                         </>
                     )}
 
-                    <Form.Item name="privateKey" label="密钥" rules={[
-                        {
-                            required: true,
-                            message: "请输入密钥",
-                        },
-                        {
-                            pattern: /^\d{10}$/,
-                            message: '密钥必须为10位数字',
-                        },
-                    ]}>
-                        <Input placeholder="10位数字" showCount maxLength={10}/>
-                    </Form.Item>
+                    {(watermarkConfigVisible == 'invisible' || watermarkConfigVisible == 'both') && (
+                        <>
+                            <Form.Item name="privateKey" label="密钥" rules={[
+                                {
+                                    required: true,
+                                    message: "请输入密钥",
+                                },
+                                {
+                                    pattern: /^\d{10}$/,
+                                    message: '密钥必须为10位数字',
+                                },
+                            ]}>
+                                <Input placeholder="10位数字" showCount maxLength={10}/>
+                            </Form.Item>
+                        </>
+                    )}
+
+
                     <Flex gap={"large"}>
                         <Form.Item>
                             <Button type="primary" htmlType="submit" style={{flex: 1}}>
@@ -588,7 +736,21 @@ const AddWaterMarkPage: React.FC = () => {
                             onOk={handleConfirmSave}
                             onCancel={handleCancelSave}
                         >
-                            <p>确定要保存为新的模板吗</p>
+                            <Form form={nameForm}>
+                                <Form.Item
+                                    name="templateName"
+                                    label="模板名称"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: '模板名称不能为空',
+                                        },
+                                    ]}
+                                >
+                                    <Input placeholder="请输入模板名称"/>
+                                </Form.Item>
+                            </Form>
+                            <p>确定要保存为新的模板吗？</p>
                         </Modal>
 
                         <Button type="primary" onClick={handleSaveTemplate} style={{marginLeft: "auto"}}>

@@ -1,22 +1,28 @@
-import {Button, ColorPicker, Flex, Form, Image, Input, Select, Switch, Typography, Upload, Watermark} from 'antd';
-import React, {useEffect, useMemo, useState} from 'react';
-import type {Color} from 'antd/es/color-picker';
+import {
+    Button,
+    Flex,
+    Form,
+    Image,
+    message,
+    Spin,
+    Upload
+} from 'antd';
+import React, {useState} from 'react';
 import {UploadOutlined} from '@ant-design/icons';
 import axios, {AxiosRequestConfig} from "axios";
-import {userInfo} from "os";
-import UserInfo = Api.UserInfo;
-import {AxiosResponseHeaders, InternalAxiosRequestConfig, RawAxiosResponseHeaders} from "axios/index";
-
-const {Paragraph} = Typography;
-
 
 const ExtractWaterMarkPage: React.FC = () => {
+
+    const [loading, setLoading] = useState(false);
+
+
 // 生成文件操作按钮
     const [form] = Form.useForm();
     const [imageSrc, setImageSrc] = React.useState<string | undefined>(undefined);
 
     const onFinish = async (values: any) => {
         console.log("提取水印");
+
         let config: AxiosRequestConfig = {
             headers: {
                 'Content-Type': 'multipart/form-data',
@@ -27,17 +33,23 @@ const ExtractWaterMarkPage: React.FC = () => {
             }
         }
         try {
-
+            setLoading(true);
             await axios.post(
                 "https://4024f85r48.picp.vip/watermark/extract",
                 config.data,
                 config
             ).then((res) => {
-                console.log(res.data);
-                setImageSrc(res.data.uri);
+                if (res.data) {
+                    setImageSrc(res.data.uri);
+                } else {
+                    setLoading(false);
+                    message.error("提取水印失败");
+                }
             });
         } catch (error) {
-
+            message.error("提取水印失败");
+        } finally {
+            setLoading(false);
         }
 
 
@@ -47,28 +59,40 @@ const ExtractWaterMarkPage: React.FC = () => {
         const {file, onSuccess, onError} = options;
 
         try {
-            // 处理上传文件：您可以在这里收集文件数据，并在提交表单时使用
             console.log('文件已选择:', file);
             form.setFieldValue("file", file);
-            // 在这里可以将文件数据添加到表单中（示例中未添加，您需要根据需要修改）
-
-            // 模拟成功上传，并调用 onSuccess 方法通知 Ant Design 上传成功
-            setTimeout(() => {
-                onSuccess("ok");
-            }, 1000); // 模拟延迟1秒钟，您可以删除此行代码，根据实际需求调用 onSuccess 或者 onError
+            message.success("上传成功");
         } catch (error) {
             console.error('上传失败:', error);
-            onError(error);
         }
     };
 
     const onFinishFailed = (errorInfo: any) => {
-        console.log('Failed:', errorInfo);
+        message.error("提交错误");
     };
 
     return (
 
         <div>
+            {loading && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)', // 半透明黑色背景
+                        zIndex: 9999,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Spin size="large" style={{fontSize: '50px'}}/>
+                    <span style={{fontSize: '20px', marginTop: '10px', color: '#079c5c'}}>提取水印中，请稍等...</span>
+                </div>
+            )}
             <div style={{display: 'flex', alignItems: 'flex-start', gap: '20px'}}>
                 {/* Form */}
                 <Form
@@ -95,18 +119,18 @@ const ExtractWaterMarkPage: React.FC = () => {
                             </Upload>
                         </Form.Item>
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" style={{width: '90%'}}>
-                                Submit
+                            <Button type="primary" htmlType="submit" style={{width: '40%'}}>
+                                提取暗水印
                             </Button>
                         </Form.Item>
                     </Flex>
 
 
                 </Form>
-
-                <Image width={200} height={200} src={imageSrc} >
-
-                </Image>
+                <Flex vertical={true} justify={"center"}>
+                    <Image width={350} height={350} src={imageSrc}></Image>
+                    <span style={{fontSize: '20px', marginTop: '10px', color: '#079c5c',marginLeft:'33%'}}>水印提取结果</span>
+                </Flex>
             </div>
         </div>
     );
