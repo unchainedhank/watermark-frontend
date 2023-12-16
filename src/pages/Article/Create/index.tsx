@@ -17,9 +17,6 @@ import {UploadOutlined} from '@ant-design/icons';
 import axios, {AxiosRequestConfig} from "axios";
 import {userInfo} from "os";
 import UserInfo = Api.UserInfo;
-import {AxiosResponseHeaders, InternalAxiosRequestConfig, RawAxiosResponseHeaders} from "axios/index";
-import {ColorFormat} from "antd/es/color-picker/interface";
-import {ColorFactory} from "antd/es/color-picker/color";
 
 const {Paragraph} = Typography;
 
@@ -71,56 +68,57 @@ const AddWaterMarkPage: React.FC = () => {
         alpha = alpha / 100;
         return `rgba(${r},${g},${b},${alpha})`; // 构建 RGBA 格式字符串
     };
+    async function getTemplateData(uid: string) {
+        try {
+            console.log("获取模板数据")
+            let templateConfig: AxiosRequestConfig = {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                data: {
+                    uid: uid, // 将用户的 uid 作为参数传递给请求
+                },
+            }
+            try {
+                await axios.post(
+                    'https://4024f85r48.picp.vip/watermark/template/query',
+                    templateConfig.data,
+                    templateConfig).then(res => {
+                    console.log(res);
+                    if (res.data.statusCode == 200) {
+                        let templateData = res.data.queryresult;
+                        const templateArray: TemplateType[] = [];
+                        for (let i = 0; i < templateData.length; i++) {
+                            const currentTemplateData = templateData[i]; // 获取当前模板数据对象
+
+                            let fontColorRgb = convertToRGBA(currentTemplateData.fontColor, currentTemplateData.alpha);
+                            const template: TemplateType = {
+                                id: currentTemplateData.templateId,
+                                name: currentTemplateData.name,
+                                content: currentTemplateData.content,
+                                fontSize: currentTemplateData.fontSize,
+                                frameSize: currentTemplateData.frameSize,
+                                rotate: currentTemplateData.angle,
+                                fontColor: fontColorRgb,
+                            };
+                            templateArray.push(template);
+                            console.log(i, template)
+                        }
+                        setTemplateOptions(templateArray);
+                    } else {
+                        message.error("获取模板失败，请检查服务器连接");
+                    }
+                });
+            } catch (e) {
+                message.error("获取模板失败，请检查服务器连接");
+            }
+        } catch (error) {
+            console.error('Error fetching template data:', error);
+        }
+    }
 
     useEffect(() => {
         // 初始化的时候获取模板
-        async function fetchData(uid: string) {
-            try {
-                console.log("获取模板数据")
-                let templateConfig: AxiosRequestConfig = {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    data: {
-                        uid: uid, // 将用户的 uid 作为参数传递给请求
-                    },
-                }
-                try {
-                    await axios.post(
-                        'https://4024f85r48.picp.vip/watermark/template/query',
-                        templateConfig.data,
-                        templateConfig).then(res => {
-                        if (res.data.statusCode == 200) {
-                            let templateData = res.data.queryresult;
-                            const templateArray: TemplateType[] = [];
-                            for (let i = 0; i < templateData.length; i++) {
-                                const currentTemplateData = templateData[i]; // 获取当前模板数据对象
-
-                                let fontColorRgb = convertToRGBA(currentTemplateData.fontColor, currentTemplateData.alpha);
-                                const template: TemplateType = {
-                                    id: currentTemplateData.templateId,
-                                    name: currentTemplateData.name,
-                                    content: currentTemplateData.content,
-                                    fontSize: currentTemplateData.fontSize,
-                                    frameSize: currentTemplateData.frameSize,
-                                    rotate: currentTemplateData.angle,
-                                    fontColor: fontColorRgb,
-                                };
-                                templateArray.push(template);
-                                console.log(i, template)
-                            }
-                            setTemplateOptions(templateArray);
-                        } else {
-                            message.error("获取模板失败，请检查服务器连接");
-                        }
-                    });
-                } catch (e) {
-                    message.error("获取模板失败，请检查服务器连接");
-                }
-            } catch (error) {
-                console.error('Error fetching template data:', error);
-            }
-        }
 
         let storedUserInfo: UserInfo | null = null;
         const storedUserInfoString = localStorage.getItem('userInfo');
@@ -131,7 +129,7 @@ const AddWaterMarkPage: React.FC = () => {
             // @ts-ignore
             console.log(storedUserInfo.uid);
             if (storedUserInfo) {
-                fetchData(storedUserInfo.uid);
+                getTemplateData(storedUserInfo.uid);
             }
         } else {
             console.error('No user info found in local storage');
@@ -489,11 +487,17 @@ const AddWaterMarkPage: React.FC = () => {
             console.log("当前颜色：", values.fontColor);
             let rgb: string = "(255,255,255)";
             let alpha: number = 1.0;
-            // let metaColor = values.fontColor.metaColor;
-            // const rgbaValue = hsvToRgb(metaColor.originalInput.h, metaColor.originalInput.s, metaColor.originalInput.v, metaColor.roundA);
+            let rgbaValue: string = "";
 
+            if (typeof values.fontColor != 'string') {
+                let metaColor = values.fontColor.metaColor;
+                rgbaValue = hsvToRgb(metaColor.originalInput.h, metaColor.originalInput.s, metaColor.originalInput.v, metaColor.roundA);
+            } else {
+                rgbaValue = values.fontColor;
+            }
+            console.log("rgbaValue", rgbaValue);
             const regex = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/;
-            const matches = values.fontColor.match(regex);
+            const matches = rgbaValue.match(regex);
             if (matches) {
                 const [, r, g, b, a] = matches;
                 rgb = `(${r},${g},${b})`;
@@ -501,7 +505,7 @@ const AddWaterMarkPage: React.FC = () => {
             }
 
             const storedUserInfoString = localStorage.getItem('userInfo');
-            let storedUserInfo;
+            let storedUserInfo: { uid: string; };
             if (storedUserInfoString) {
                 storedUserInfo= JSON.parse(storedUserInfoString); // 将字符串解析为 UserInfo 对象
             }
@@ -515,25 +519,30 @@ const AddWaterMarkPage: React.FC = () => {
                     uid:storedUserInfo.uid,
                     name: templateName,
                     targetFingerprint: ['self'],
-                    content: values.content,
-                    fontSize: values.fontSize,
+                    content: String(values.content),
+                    fontSize: String(values.fontSize),
                     fontColor: rgb,
-                    frameSize: values.frameSize,
+                    frameSize: String(values.frameSize),
                     alpha: String(alpha * 100),
-                    angle: values.rotate,
+                    angle: String(values.rotate),
                 }
             };
             console.log("请求数据");
             console.log(newTemplateConfig.data);
 
-            await axios.post('https://4024f85r48.picp.vip/watermark/template/insert',
-                newTemplateConfig, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }).then(res=>{
+            await axios.post(
+                'https://4024f85r48.picp.vip/watermark/template/insert',
+                newTemplateConfig.data,
+                newTemplateConfig
+                ).then(res=>{
                 console.log("返回数据");
                 console.log(res);
+                if (res.data.statusCode == "200") {
+                    message.success("模版添加成功");
+                    getTemplateData(storedUserInfo.uid);
+                } else {
+                    message.error("模版添加错误");
+                }
             });
 
             // 处理请求成功后的逻辑
@@ -556,6 +565,8 @@ const AddWaterMarkPage: React.FC = () => {
         try {
             // 处理上传文件：您可以在这里收集文件数据，并在提交表单时使用
             form.setFieldValue("file", file);
+            onSuccess("ok");
+            console.log(file)
             message.success("文件上传成功");
             // 在这里可以将文件数据添加到表单中（示例中未添加，您需要根据需要修改）
             // 模拟成功上传，并调用 onSuccess 方法通知 Ant Design 上传成功
@@ -625,21 +636,7 @@ const AddWaterMarkPage: React.FC = () => {
                             <Button icon={<UploadOutlined/>}>点击上传</Button>
                         </Upload>
                     </Form.Item>
-                    <Form.Item name="template" label="选择模板">
-                        <Select onChange={handleTemplateChange} placeholder="Select a template">
-                            {templateOptions.length > 0 ? (
-                                templateOptions.map((template) => (
-                                    <Select.Option key={template.id} value={template.id}>
-                                        {template.name}
-                                    </Select.Option>
-                                ))
-                            ) : (
-                                <Select.Option value={null} disabled>
-                                    Loading...
-                                </Select.Option>
-                            )}
-                        </Select>
-                    </Form.Item>
+
                     <Form.Item name={"watermarkType"} label={"水印类型"}>
                         <Radio.Group onChange={onTypeChange} value={watermarkTypeSelect}>
                             <Radio value={'visible'}>明水印</Radio>
@@ -650,6 +647,21 @@ const AddWaterMarkPage: React.FC = () => {
 
                     {(watermarkConfigVisible == 'visible' || watermarkConfigVisible == 'both') && (
                         <>
+                            <Form.Item name="template" label="选择模板">
+                                <Select onChange={handleTemplateChange} placeholder="Select a template">
+                                    {templateOptions.length > 0 ? (
+                                        templateOptions.map((template) => (
+                                            <Select.Option key={template.id} value={template.id}>
+                                                {template.name}
+                                            </Select.Option>
+                                        ))
+                                    ) : (
+                                        <Select.Option value={null} disabled>
+                                            Loading...
+                                        </Select.Option>
+                                    )}
+                                </Select>
+                            </Form.Item>
                             <Form.Item name="content" label="自定义水印内容">
                                 <Input placeholder="pkc" showCount maxLength={20}/>
                             </Form.Item>
@@ -679,11 +691,6 @@ const AddWaterMarkPage: React.FC = () => {
                                     required: true,
                                     message: "请输入水印框大小",
                                 },
-                                {
-                                    type: "number",
-                                    min: 0,
-                                    message: '水印框大小必须大于0',
-                                }
                             ]}>
                                 <Input/>
                             </Form.Item>
