@@ -37,7 +37,7 @@ const Header: React.FC = () => {
       <div className="left">
         <div className="logo">
           <Iconfont type="icon-react" className="logo-img" />
-          <span className="logo-text">React Admin Template</span>
+          <span className="logo-text">数字水印系统</span>
         </div>
         <div>
           {React.createElement(menuCollapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {

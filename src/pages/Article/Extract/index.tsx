@@ -33,6 +33,7 @@ const ExtractWaterMarkPage: React.FC = () => {
             }
         }
         try {
+            console.log(config.data);
             setLoading(true);
             await axios.post(
                 "https://4024f85r48.picp.vip/watermark/extract",
@@ -61,6 +62,7 @@ const ExtractWaterMarkPage: React.FC = () => {
         try {
             console.log('文件已选择:', file);
             form.setFieldValue("file", file);
+            onSuccess("ok");
             message.success("上传成功");
         } catch (error) {
             console.error('上传失败:', error);
@@ -113,7 +115,7 @@ const ExtractWaterMarkPage: React.FC = () => {
                 >
                     <Flex vertical={true} gap={"middle"}>
                         <Form.Item name={"file"} label={"文件"}>
-                            <Upload multiple={false} accept={".pdf,.doc"} maxCount={1}
+                            <Upload multiple={false} accept={".pdf,.doc,.jpg,.jpeg,.png"} maxCount={1}
                                     customRequest={handleCustomUpload}>
                                 <Button style={{width: '120%'}} icon={<UploadOutlined/>}>点击上传</Button>
                             </Upload>
