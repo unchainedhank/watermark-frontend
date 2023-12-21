@@ -18,6 +18,7 @@ const LoginPage = lazy(() => import('@/pages/Login'));
 const DashboardPage = lazy(() => import('@/pages/Dashboard'));
 const IframePage = lazy(() => import('@/pages/Iframe'));
 const RegisterPage = lazy(() => import('@/pages/Register/Register'));
+
 const Suspense: React.FC<React.PropsWithChildren> = ({ children }) => (
   <React.Suspense fallback={<PageLoading />}>{children}</React.Suspense>
 );

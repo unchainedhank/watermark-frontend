@@ -101,7 +101,10 @@ const ExtractWaterMarkPage: React.FC = () => {
                     style={{
                         width: '280px',
                         borderLeft: '1px solid #eee',
-                        paddingLeft: '20px',
+                        //paddingLeft: '20px',
+                        padding: '20px',
+                        backgroundColor:'#ffffff',//表单背景颜色
+                        borderRadius:'10px'
                     }}
                     form={form}
                     layout="vertical"

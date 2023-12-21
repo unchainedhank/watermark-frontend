@@ -652,7 +652,9 @@ const AddWaterMarkPage: React.FC = () => {
                     style={{
                         width: '280px',
                         borderLeft: '1px solid #eee',
-                        paddingLeft: '20px',
+                        padding: '20px',
+                        backgroundColor:'#ffffff',//表单背景颜色
+                        borderRadius:'10px'
                     }}
                     form={form}
                     layout="vertical"
@@ -812,7 +814,14 @@ const AddWaterMarkPage: React.FC = () => {
 
 
                 {/* Watermark and Image */}
-                <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '20px',
+                    backgroundColor:'#ffffff',
+                    borderRadius:'10px',
+                    padding:'20px'
+                }}>
 
                     <Watermark {...watermarkProps}>
                         <Typography>
@@ -854,6 +863,7 @@ const AddWaterMarkPage: React.FC = () => {
                             }}
                             src="https://gw.alipayobjects.com/mdn/rms_08e378/afts/img/A*zx7LTI_ECSAAAAAAAAAAAABkARQnAQ"
                             alt="示例图片"
+                            height="400px"
                         />
                     </Watermark>
                 </div>

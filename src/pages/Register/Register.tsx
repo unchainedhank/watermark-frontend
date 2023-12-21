@@ -133,29 +133,29 @@ export default function register(this: IFormState) {
     };
     const formLayout = {
         borderRadius: ' 10px',
-        backgroundColor: '#333',
+        backgroundColor: '#ffffff',
         border: '2px solid #bfbfbf',
-        margin: '20px 20px 20px 40px',
-        width: '300px',
+        margin: '0px 0px 20px 0px',
+        width: '330px',
         //height:'50px',
 
     };
 
     return (
-        <div style={{backgroundColor: '#333', fontSize: '10px'}}>
+        <div style={{backgroundColor: '#f5f5f5', fontSize: '10px'}}>
             <div>
-                <Typography.Title style={{textAlign: 'center', margin: '10px 10px'}}>数字水印系统</Typography.Title>
+                <Typography.Title style={{textAlign: 'center', margin: '20px 10px 30px 10px'}}>数字水印系统</Typography.Title>
             </div>
             <div style={{
                 display: 'flex',
                 justifyContent: 'center',
-                background: '#2c2c2c',
-                overflow: 'scroll',
-                height: '800px'
+                background: '#f5f5f5',
+                //overflow: 'scroll',
+                height: '200px'
             }}>
                 <Form<IFormState>
-                    labelCol={{span: 20}}
-                    wrapperCol={{span: 90}}
+                    labelCol={{span: 5}}
+                    wrapperCol={{span: 19}}
                     style={{maxWidth: 3000}}
                     autoComplete="off"
                     name="register-form"
@@ -165,66 +165,69 @@ export default function register(this: IFormState) {
                     onFinishFailed={onFinishFailed}
 
                 >
-                    <Form.Item
-                        name="uid"
-                        rules={[{required: true, message: '账号'}, {
-                            pattern: /^[a-zA-Z0-9_-]{4,16}$/,
-                            message: "'账号应为4到16位（字母，数字，下划线，减号）'"
-                        },
-                        ]}
+                    <br/>
+                    {/*<Form.Item*/}
+                    {/*    name="uid"*/}
+                    {/*    rules={[{required: true, message: '账号'}, {*/}
+                    {/*        pattern: /^[a-zA-Z0-9_-]{4,16}$/,*/}
+                    {/*        message: "'账号应为4到16位（字母，数字，下划线，减号）'"*/}
+                    {/*    },*/}
+                    {/*    ]}*/}
 
-                        // style={{borderRadius:' 0 10px 10px 0',
-                        //     backgroundColor: '#FFFFFF',
-                        //     border: '2px solid #bfbfbf',
-                        //     margin:'5px'
-                        // }}
-                        style={formLayout}
-                    >
-                        <Input placeholder="请输入账号" bordered={false}/>
-                    </Form.Item>
-                    <Form.Item
-                        name="phone"
-                        rules={[{required: true, message: '请输入手机号!'}, {validator: changePhone}]}
-                        // style={{borderRadius:' 10px',
-                        //     backgroundColor: '#FFFFFF',
-                        //     border: '2px solid #bfbfbf',
-                        //     margin:'20px',
-                        //     width:'400px',
-                        //     height:'50px'
-                        // }}
-                        style={formLayout}
-                    >
-                        <Input placeholder="请输入手机号" bordered={false}/>
-                    </Form.Item>
-                    <Form.Item
-                        name="email"
-                        rules={[{required: true, message: '邮箱'}, {
-                            type: 'email',
-                            message: '请输入正确的邮箱',
-                        }]}
-                        style={formLayout}
-                    >
-                        <Input placeholder="请输入邮箱" bordered={false}/>
-                    </Form.Item>
+                    {/*    // style={{borderRadius:' 0 10px 10px 0',*/}
+                    {/*    //     backgroundColor: '#FFFFFF',*/}
+                    {/*    //     border: '2px solid #bfbfbf',*/}
+                    {/*    //     margin:'5px'*/}
+                    {/*    // }}*/}
+                    {/*    //style={formLayout}*/}
+                    {/*>*/}
+                    {/*    <Input placeholder="请输入账号" bordered={false} style={formLayout}/>*/}
+                    {/*</Form.Item>*/}
+                    {/*<Form.Item*/}
+                    {/*    name="phone"*/}
+                    {/*    rules={[{required: true, message: '请输入手机号!'}, {validator: changePhone}]}*/}
+                    {/*    // style={{borderRadius:' 10px',*/}
+                    {/*    //     backgroundColor: '#FFFFFF',*/}
+                    {/*    //     border: '2px solid #bfbfbf',*/}
+                    {/*    //     margin:'20px',*/}
+                    {/*    //     width:'400px',*/}
+                    {/*    //     height:'50px'*/}
+                    {/*    // }}*/}
+                    {/*    //style={formLayout}*/}
+                    {/*>*/}
+                    {/*    <Input placeholder="请输入手机号" bordered={false} style={formLayout}/>*/}
+                    {/*</Form.Item>*/}
+                    {/*<Form.Item*/}
+                    {/*    name="email"*/}
+                    {/*    rules={[{required: true, message: '邮箱'}, {*/}
+                    {/*        type: 'email',*/}
+                    {/*        message: '请输入正确的邮箱',*/}
+                    {/*    }]}*/}
+                    {/*    //style={formLayout}*/}
+                    {/*>*/}
+                    {/*    <Input placeholder="请输入邮箱" bordered={false} style={formLayout}/>*/}
+                    {/*</Form.Item>*/}
                     <Form.Item
                         name="username"
+                        label="用户名"
                         rules={[{required: true, message: '用户名不能为空'},
                             {pattern: /^[a-zA-Z0-9_-]{4,16}$/, message: "'用户名应为4到16位（字母，数字，下划线，减号）'"},
                             // {validator: changeUsername}
                         ]}
-                        style={formLayout}
+                        //style={formLayout}
                     >
-                        <Input placeholder="请输入用户名" bordered={false}/>
+                        <Input placeholder="请输入用户名" bordered={false} style={formLayout}/>
                     </Form.Item>
-                    <Form.Item
-                        name="department"
-                        rules={[{required: true, message: '请设置部门!'}]}
-                        style={formLayout}
-                    >
-                        <Input placeholder="请设置部门" bordered={false}/>
-                    </Form.Item>
+                    {/*<Form.Item*/}
+                    {/*    name="department"*/}
+                    {/*    rules={[{required: true, message: '请设置部门!'}]}*/}
+                    {/*    //style={formLayout}*/}
+                    {/*>*/}
+                    {/*    <Input placeholder="请设置部门" bordered={false} style={formLayout}/>*/}
+                    {/*</Form.Item>*/}
                     <Form.Item
                         name="password"
+                        label="设置密码"
                         rules={[{required: true, message: '请设置密码!'},
                             {type: "string", max: 18},
                             {type: "string", min: 8},
@@ -235,16 +238,18 @@ export default function register(this: IFormState) {
                             // {validator: changePassword,
                             // message: "数字、大写字母、小写字母、特殊字符至少3种"}]}
                         ]}
-                        style={formLayout}
+                        //style={formLayout}
                     >
                         <Input.Password
                             bordered={false}
                             type="password"
                             placeholder="请设置密码"
+                            style={formLayout}
                         />
                     </Form.Item>
                     <Form.Item
                         name="passwordcertificate"
+                        label="确认密码"
                         rules={[{required: true, message: '请确认密码!'},
                             ({getFieldValue}) => ({
                                 validator(_, value) {
@@ -256,12 +261,13 @@ export default function register(this: IFormState) {
                             }),
                             // {validator: changePassCtf}
                         ]}
-                        style={formLayout}
+                        //style={formLayout}
                     >
                         <Input.Password
                             bordered={false}
                             type="password"
                             placeholder="确认密码"
+                            style={formLayout}
                         />
                     </Form.Item>
 
@@ -271,24 +277,25 @@ export default function register(this: IFormState) {
                         valuePropName="checked"
                         style={{
                             textAlign: 'left',
-                            margin: '0 0 20px 40px'
+                            margin: '0 0 0px 80px'
                         }}
                         rules={[{required: true, message: '您必须同意用户服务协议!'}]}
                     >
-                        <Checkbox style={{color: '#ffffff'}}>我已阅读并同意《<Link
-                            to={""}>用户服务协议</Link>》</Checkbox>
+                        <Checkbox style={{color: '#000000',textAlign: 'left',}}>我已阅读并同意《<Link to={""}>用户服务协议</Link>》</Checkbox>
                     </Form.Item>
 
                     <Form.Item>
                         <Button type="primary" htmlType="submit" block
-                                style={{height: '56PX', width: '300px', borderRadius: '12PX', margin: '0 0 0 40px'}}>
+                                style={{height: '56PX', width: '330px', borderRadius: '12PX', margin: '0 0 0 80px'}}>
                             注册
                         </Button>
                     </Form.Item>
                     <Form.Item
                         style={{
-                            textAlign: 'left',
-                            margin: '0 0 0 40px'
+                            //textAlign: 'left',
+                            textAlign: 'center',
+                            //margin: '0 0 0 40px'
+
                         }}
                     >
                         已有帐号，<Link to="/index"><a href="#">点击登录</a></Link>
