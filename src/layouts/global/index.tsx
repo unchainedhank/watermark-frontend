@@ -35,49 +35,54 @@ const GlobalLayout: React.FC = () => {
     // if (pathname === '/') {
     //   navigate('/dashboard');
     // }
+    console.log(validateToken())
     if (!validateToken()) {
       // token 无效
       navigate('/login');
       return;
     }
+
+    setIsLogin(true);
+    setGetUserInfoLoading(false);
+    // setUserInfo!(data);
     // 第一个接口必须要保成功
     // todo: async await
-    getUserInfo()
-      .then((data) => {
-        setGetUserInfoLoading(false);
-        setIsLogin(true);
-        setUserInfo!(data);
-
-        // 借助 gh-page 404.html的功能跳转回来, 解析路由并加载相应的页面
-        // https://www.xstnet.com/article-162.html
-        if (searchParams.has('ghpage')) {
-          const ghpage = decodeURIComponent(searchParams.get('ghpage')!);
-          navigate(ghpage);
-          return;
-        }
-      })
-      .catch((e) => {
-        if (e instanceof AxiosError) {
-          notification.error({
-            message: '网络错误',
-            description: '获取用户信息失败, 无法打开页面',
-            duration: null,
-            closeIcon: null
-          });
-        }
-      });
+    // getUserInfo()
+    //   .then((data) => {
+    //     setGetUserInfoLoading(false);
+    //     setIsLogin(true);
+    //     setUserInfo!(data);
+    //
+    //     // 借助 gh-page 404.html的功能跳转回来, 解析路由并加载相应的页面
+    //     // https://www.xstnet.com/article-162.html
+    //     if (searchParams.has('ghpage')) {
+    //       const ghpage = decodeURIComponent(searchParams.get('ghpage')!);
+    //       navigate(ghpage);
+    //       return;
+    //     }
+    //   })
+    //   .catch((e) => {
+    //     if (e instanceof AxiosError) {
+    //       notification.error({
+    //         message: '网络错误',
+    //         description: '获取用户信息失败, 无法打开页面',
+    //         duration: null,
+    //         closeIcon: null
+    //       });
+    //     }
+    //   });
   }, []);
 
   // 页面更新检测token, 不需要第二个参数
-  useUpdateEffect(() => {
-    if (!validateToken()) {
-      // token 无效
-      message.error('登录状态已失效, 即将跳转到登录页面...');
-      setTimeout(() => {
-        navigate('/login');
-      }, 500);
-    }
-  });
+  // useUpdateEffect(() => {
+  //   if (!validateToken()) {
+  //     // token 无效
+  //     message.error('登录状态已失效, 即将跳转到登录页面...');
+  //     setTimeout(() => {
+  //       navigate('/login');
+  //     }, 500);
+  //   }
+  // });
 
   if (getUserInfoLoading) {
     return <PageLoading title="页面加载中" loading={getUserInfoLoading} />;

@@ -5,6 +5,8 @@ declare namespace Menu {
     | number
     | (string | number)[]
     | ((userInfo: Api.GetUserInfo['response']) => boolean);
+
+
   // 额外扩展的字段
   type ExtendMenuType = {
     path: string;

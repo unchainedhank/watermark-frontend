@@ -8,6 +8,7 @@ import {
   MenuUnfoldOutlined,
   UserOutlined
 } from '@ant-design/icons';
+import avatarImage from '../../../assets/images/avatar.png';
 
 import './index.less';
 import Iconfont from '@/components/Iconfont';
@@ -82,6 +83,7 @@ const Header: React.FC = () => {
           postLogout().then(() => {
             Cache.removeToken();
             setIsLogin(false);
+            // @ts-ignore
             setUserInfo(null);
             navigate('/login');
           });
@@ -96,8 +98,9 @@ const Header: React.FC = () => {
 
           <Dropdown menu={{ items }}>
             <Space className="pointer">
-              <span>{userInfo?.nickname}</span>
-              <Avatar src={userInfo?.avatar} />
+              {/*<span>{userInfo?.fullName}</span>*/}
+              <Avatar src={avatarImage} />
+              {/*<Avatar src={userInfo?.avatar} />*/}
             </Space>
           </Dropdown>
         </Space>

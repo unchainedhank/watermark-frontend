@@ -27,6 +27,7 @@ namespace Api {
     phone: string;
     email: string;
     department: string;
+    role: string;
   }
 
   // -----------------------------------------------------------------------------------------------

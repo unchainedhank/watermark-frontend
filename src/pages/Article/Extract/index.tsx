@@ -33,7 +33,6 @@ const ExtractWaterMarkPage: React.FC = () => {
             }
         }
         try {
-            console.log(config.data);
             setLoading(true);
             await axios.post(
                 "https://4024f85r48.picp.vip/watermark/extract",
@@ -101,10 +100,7 @@ const ExtractWaterMarkPage: React.FC = () => {
                     style={{
                         width: '280px',
                         borderLeft: '1px solid #eee',
-                        //paddingLeft: '20px',
-                        padding: '20px',
-                        backgroundColor:'#ffffff',//表单背景颜色
-                        borderRadius:'10px'
+                        paddingLeft: '20px',
                     }}
                     form={form}
                     layout="vertical"
@@ -124,7 +120,7 @@ const ExtractWaterMarkPage: React.FC = () => {
                             </Upload>
                         </Form.Item>
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" style={{width: '40%'}}>
+                            <Button type="primary" htmlType="submit" style={{width: '100%'}}>
                                 提取暗水印
                             </Button>
                         </Form.Item>

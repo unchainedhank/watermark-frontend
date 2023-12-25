@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {Button, Checkbox, Col, ConfigProvider, Form, Input, Row, theme, Typography, Flex, message} from 'antd';
 import Cache from '@/utils/cache';
 import './index.less';
@@ -6,6 +6,7 @@ import Config from '@/configs';
 import {Link, useNavigate} from 'react-router-dom';
 import axios from "axios";
 import {useForm} from "antd/es/form/Form";
+import {GlobalContext} from "@/contexts/Global";
 
 interface IFormState {
     username: string;
@@ -16,6 +17,8 @@ interface IFormState {
 
 // todo: dark theme 适配
 const LoginPage: React.FC = () => {
+
+    const {userInfo, setUserInfo} = useContext(GlobalContext);
     const [form] = useForm(); // 使用 useForm 声明 form
     useEffect(() => {
         // 从 localStorage 中获取记住的用户名和密码
@@ -52,13 +55,28 @@ const LoginPage: React.FC = () => {
         };
         axios.post(
             "https://4024f85r48.picp.vip/user/login",
+            // "http://localhost:30098/user/login",
             loginConfig.data,
             loginConfig
         ).then((res) => {
+            console.log("登录返回值")
             console.log(res);
             if (res.data.statusCode == "200") {
-                const userInfo = res.data.user;
-                localStorage.setItem('userInfo', JSON.stringify(userInfo));
+                const userInfoRes = res.data.user;
+
+                const newUserInfo = {
+                    uid: res.data.user.uid,
+                    username:res.data.user.username,
+                    phone: res.data.user.phone,
+                    email: res.data.user.email,
+                    department: res.data.user.department,
+                    role: res.data.user.userRole,
+                }
+                setUserInfo(newUserInfo);
+                console.log(userInfo)
+
+
+                // localStorage.setItem('userInfo', JSON.stringify(userInfo));
                 localStorage.setItem('rememberMeInfo', JSON.stringify({
                     username: values.username,
                     password: values.password,

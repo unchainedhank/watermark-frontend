@@ -28,7 +28,7 @@ const MenuProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   useEffect(() => {
     async function getMenuList() {
       try {
-        const menuList = await generateMenuList(userInfo!);
+        const menuList = await generateMenuList(userInfo);
         setMenuList([...menuList]);
       } catch (e) {
         console.warn('获取菜单数据失败', e);

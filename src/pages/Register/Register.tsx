@@ -1,26 +1,20 @@
-import React, {useRef, useState} from 'react';
+import React, {useContext, useRef, useState} from 'react';
 import {Form, Input, Button, Checkbox, Tabs, Row, Col, Typography, theme, message} from 'antd';
-import {Footer} from 'antd/lib/layout/layout';
 import {Link, useNavigate, useHref} from 'react-router-dom';
-import {postLogin, postRegister} from "@/api";
-import {useRequest} from "ahooks";
-import Cache from "@/utils/cache";
 import {Simulate} from "react-dom/test-utils";
-import submit = Simulate.submit;
 import axios from "axios";
-// const [messageApi,contextHolder]=message.useMessage();
-// const navigate = useNavigate()
+import {GlobalContext} from "@/contexts/Global";
 
 const onFinishFailed = (values: any) => {
-    console.log('falied:', values)
+    message.error("注册失败");
 }
 
 const initialValues: Partial<IFormState> = {
     uid: '',
-    email: '',
-    phone: '',
+    // email: '',
+    // phone: '',
     username: '',
-    department: '',
+    // department: '',
     password: '',
     passwordcertificate: '',
 };
@@ -28,10 +22,10 @@ const initialValues: Partial<IFormState> = {
 interface IFormState {
 
     uid: string;
-    email: string;
-    phone: string;
+    // email: string;
+    // phone: string;
     username: string
-    department: string;
+    // department: string;
     password: string;
     passwordcertificate: string;
 }
@@ -83,12 +77,12 @@ export default function register(this: IFormState) {
         console.log(values);
         let registerConfig = {
             data: {
+                phone: '',
+                username: values.uid,
                 uid: values.uid,
                 password: values.password,
-                username: values.username,
-                phone: values.phone,
-                email: values.email,
                 department: values.department,
+
             },
             headers: {
                 'Content-Type': 'application/json',
@@ -97,7 +91,7 @@ export default function register(this: IFormState) {
         console.log("发送请求信息");
         console.log(registerConfig.data)
         await axios.post(
-            "https://4024f85r48.picp.vip/user/register",
+            "http://localhost:30098/user/register",
             registerConfig.data,
             registerConfig
         ).then(response => {
@@ -109,26 +103,7 @@ export default function register(this: IFormState) {
                 message.error("注册失败");
             }
         });
-        // const [messageApi, contextHolder] = message.useMessage();
-        // const navigate = useNavigate();
-        // console.log('Received values of form: ', values);
-        // try{
-        //     const res =await PostRegister(values)
-        //         .then((res) =>{
-        //                 console.log(res);
-        //                 if(res.code==0){
-        //                     messageApi.success("success")
-        //                     navigate("/login")
-        //                 }
-        //                 else{
-        //                     messageApi.error("error")
-        //                 }
-        //             }
-        //         )
-        // }catch (error) {
-        //     console.error("发生错误：", error);
-        //     messageApi.error("发生错误，请重试");
-        // }
+
 
     };
     const formLayout = {
@@ -144,7 +119,8 @@ export default function register(this: IFormState) {
     return (
         <div style={{backgroundColor: '#f5f5f5', fontSize: '10px'}}>
             <div>
-                <Typography.Title style={{textAlign: 'center', margin: '20px 10px 30px 10px'}}>数字水印系统</Typography.Title>
+                <Typography.Title
+                    style={{textAlign: 'center', margin: '20px 10px 30px 10px'}}>数字水印系统</Typography.Title>
             </div>
             <div style={{
                 display: 'flex',
@@ -208,23 +184,24 @@ export default function register(this: IFormState) {
                     {/*    <Input placeholder="请输入邮箱" bordered={false} style={formLayout}/>*/}
                     {/*</Form.Item>*/}
                     <Form.Item
-                        name="username"
+                        name="uid"
                         label="用户名"
                         rules={[{required: true, message: '用户名不能为空'},
-                            {pattern: /^[a-zA-Z0-9_-]{4,16}$/, message: "'用户名应为4到16位（字母，数字，下划线，减号）'"},
+                            {pattern: /^[a-zA-Z0-9_-]{4,16}$/, message: "'用户名应为4到16位（字母，数字，下划线）'"},
                             // {validator: changeUsername}
                         ]}
                         //style={formLayout}
                     >
                         <Input placeholder="请输入用户名" bordered={false} style={formLayout}/>
                     </Form.Item>
-                    {/*<Form.Item*/}
-                    {/*    name="department"*/}
-                    {/*    rules={[{required: true, message: '请设置部门!'}]}*/}
-                    {/*    //style={formLayout}*/}
-                    {/*>*/}
-                    {/*    <Input placeholder="请设置部门" bordered={false} style={formLayout}/>*/}
-                    {/*</Form.Item>*/}
+                    <Form.Item
+                        name="department"
+                        label={"设置部门"}
+                        rules={[{required: true, message: '请设置部门!'}]}
+                        //style={formLayout}
+                    >
+                        <Input placeholder="请设置部门" bordered={false} style={formLayout}/>
+                    </Form.Item>
                     <Form.Item
                         name="password"
                         label="设置密码"
@@ -281,7 +258,8 @@ export default function register(this: IFormState) {
                         }}
                         rules={[{required: true, message: '您必须同意用户服务协议!'}]}
                     >
-                        <Checkbox style={{color: '#000000',textAlign: 'left',}}>我已阅读并同意《<Link to={""}>用户服务协议</Link>》</Checkbox>
+                        <Checkbox style={{color: '#000000', textAlign: 'left',}}>我已阅读并同意《<Link
+                            to={""}>用户服务协议</Link>》</Checkbox>
                     </Form.Item>
 
                     <Form.Item>

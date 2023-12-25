@@ -14,12 +14,13 @@ import {
     Upload,
     Watermark
 } from 'antd';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import type {Color} from 'antd/es/color-picker';
 import {DeleteOutlined, UploadOutlined} from '@ant-design/icons';
 import axios, {AxiosRequestConfig} from "axios";
 import {userInfo} from "os";
 import UserInfo = Api.UserInfo;
+import {GlobalContext} from "@/contexts/Global";
 
 const {Paragraph} = Typography;
 
@@ -58,8 +59,8 @@ const AddWaterMarkPage: React.FC = () => {
         watermarkType: 'visible',
     });
     const {content, fontColor, fontSize, frameSize, rotate, privateKey, watermarkType} = watermarkConfig;
-
     const [templateOptions, setTemplateOptions] = useState<TemplateType[]>([]);
+    const {userInfo, setUserInfo} = useContext(GlobalContext);
 
     const convertToRGBA = (rgbString: string, alpha: number) => {
         const rgbValues = rgbString
@@ -120,30 +121,9 @@ const AddWaterMarkPage: React.FC = () => {
         }
     }
 
-
-    let [storedUserInfo, setStoredUserInfo] = useState<UserInfo | null>();
-    useEffect(() => {
-        // 初始化的时候获取模板
-
-        const storedUserInfoString = localStorage.getItem('userInfo');
-
-        if (storedUserInfoString) {
-            let parseRes = JSON.parse(storedUserInfoString);
-            let temp: UserInfo = {
-                uid: parseRes.uid,
-                username: parseRes.username,
-                phone: parseRes.phone,
-                email: parseRes.email,
-                department: parseRes.department,
-            }
-            setStoredUserInfo(temp)
-        }
-    }, []);
     useEffect(()=>{
-        if (storedUserInfo?.uid) {
-            getTemplateData(storedUserInfo.uid);
-        }
-    },[storedUserInfo])
+            getTemplateData(userInfo.uid);
+    },[])
 
     const handleTemplateChange = (value: number) => {
         const selectedTemplate = templateOptions.find((template: TemplateType) => template.id === value);
@@ -219,7 +199,7 @@ const AddWaterMarkPage: React.FC = () => {
                         'Content-Type': 'multipart/form-data',
                     },
                     data: {
-                        targetFingerprint: "111",
+                        targetFingerprint: [values.privateKey],
                         file: values.file.file.originFileObj,
                     }
                 };
@@ -374,7 +354,7 @@ const AddWaterMarkPage: React.FC = () => {
                     },
                     data: {
                         file: values.file.file.originFileObj,
-                        targetFingerprint: ['self'],
+                        targetFingerprint: [values.privateKey],
                         content: values.content,
                         fontSize: values.fontSize,
                         fontColor: rgb,
@@ -652,9 +632,7 @@ const AddWaterMarkPage: React.FC = () => {
                     style={{
                         width: '280px',
                         borderLeft: '1px solid #eee',
-                        padding: '20px',
-                        backgroundColor:'#ffffff',//表单背景颜色
-                        borderRadius:'10px'
+                        paddingLeft: '20px',
                     }}
                     form={form}
                     layout="vertical"
@@ -694,7 +672,7 @@ const AddWaterMarkPage: React.FC = () => {
                                                     <span style={{float: "right"}}>
                                                 <DeleteOutlined
                                                     onClick={() => {
-                                                        deleteOption(storedUserInfo?.uid, template.id);
+                                                        deleteOption(userInfo.uid, template.id);
                                                     }}
                                                 />
                                               </span>
@@ -814,14 +792,7 @@ const AddWaterMarkPage: React.FC = () => {
 
 
                 {/* Watermark and Image */}
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '20px',
-                    backgroundColor:'#ffffff',
-                    borderRadius:'10px',
-                    padding:'20px'
-                }}>
+                <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
 
                     <Watermark {...watermarkProps}>
                         <Typography>
@@ -863,7 +834,6 @@ const AddWaterMarkPage: React.FC = () => {
                             }}
                             src="https://gw.alipayobjects.com/mdn/rms_08e378/afts/img/A*zx7LTI_ECSAAAAAAAAAAAABkARQnAQ"
                             alt="示例图片"
-                            height="400px"
                         />
                     </Watermark>
                 </div>
