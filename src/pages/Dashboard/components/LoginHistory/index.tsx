@@ -5,14 +5,15 @@ import {Card} from 'antd';
 import Table, {ColumnsType} from 'antd/es/table';
 import dayjs from 'dayjs';
 import {Link} from 'react-router-dom';
-import {useContext, useEffect} from "react";
+import {useContext, useEffect, useState} from "react";
 import {GlobalContext} from "@/contexts/Global";
 import axios, {AxiosRequestConfig} from "axios";
 
 const LoginHistory: React.FC<{}> = () => {
 
-    const { userInfo } = useContext(GlobalContext);
+    const {userInfo} = useContext(GlobalContext);
     console.log(userInfo)
+    const [loginHistoryData, setLoginHistoryData] = useState();
     const columns: ColumnsType<Model.LoginHistory> = [
         {
             title: '昵称',
@@ -35,35 +36,35 @@ const LoginHistory: React.FC<{}> = () => {
     ];
 
     // 使用相同数据构造数组, 此时没有有效的key
-    const data: Model.LoginHistory[] = Array(5).fill({
-        id: randomNumber(10, 100000),
-        userId: 1,
-        loginIp: '127.0.0.1',
-        nickname: 'admin',
-        create_time: dayjs().subtract(3, 'second').format(DayjsFormatEnum.second)
-    });
+    // const data: Model.LoginHistory[] = Array(5).fill({
+    //     id: randomNumber(10, 100000),
+    //     userId: 1,
+    //     loginIp: '127.0.0.1',
+    //     nickname: 'admin',
+    //     create_time: dayjs().subtract(3, 'second').format(DayjsFormatEnum.second)
+    // });
 
-    useEffect(()=>{
-        const fetchLoginData = async ()=>{
+    useEffect(() => {
+        const fetchLoginData = async () => {
             let loginHistory: AxiosRequestConfig = {
                 data: {
                     uid: userInfo.uid,
                     logType: 'loginHistory',
                 }
             };
-            axios.post(
+            return await axios.post(
                 "https://4024f85r48.picp.vip//logs",
                 loginHistory.data,
                 loginHistory
-            ).then((res)=>{
-                console.log("获取登录历史", res);
-                if (res.data.statusCode === '200') {
-                    let logData = res.data.logs;
-
-                }
-            });
+            )
         }
-    },[])
+        fetchLoginData().then((res) => {
+            console.log("获取登录历史", res);
+            if (res.data.statusCode === '200') {
+                setLoginHistoryData(res.data.logs);
+            }
+        });
+    }, [])
 
     return (
         <Card title="登录历史" extra={<Link to="/">查看更多</Link>}>
@@ -72,7 +73,7 @@ const LoginHistory: React.FC<{}> = () => {
                 pagination={false}
                 size="small"
                 columns={columns}
-                dataSource={data}
+                dataSource={loginHistoryData}
             />
         </Card>
     );

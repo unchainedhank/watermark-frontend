@@ -8,16 +8,17 @@ import {useContext, useEffect, useState} from "react";
 import axios, {AxiosRequestConfig} from "axios";
 import {GlobalContext} from "@/contexts/Global";
 
-const [ratio, setRatio] = useState([
-    { name: '明水印', value: 1 },
-    { name: '暗水印', value: 1 },
-]);
+
 
 
 
 
 const DashboardPage: React.FC = () => {
     const {userInfo } = useContext(GlobalContext);
+    const [ratio, setRatio] = useState([
+        { name: '明水印', value: 1 },
+        { name: '暗水印', value: 1 },
+    ]);
     useEffect(() => {
         const fetchRatioData = async () => {
             let ratioConfig: AxiosRequestConfig = {
@@ -46,47 +47,47 @@ const DashboardPage: React.FC = () => {
     return (
         <>
             <div>
-                <Row gutter={24}>
-                    <Col span={6}>
-                        <Card bordered={false}>
-                            <Statistic title="今日销售额" value={126560} precision={2} prefix="$"/>
-                        </Card>
-                    </Col>
-                    <Col span={6}>
-                        <Card bordered={false}>
-                            <Statistic
-                                title="示例指标"
-                                value={11.28}
-                                precision={2}
-                                prefix={<ArrowUpOutlined/>}
-                                suffix="%"
-                            />
-                        </Card>
-                    </Col>
-                    <Col span={6}>
-                        <Card bordered={false}>
-                            <Statistic
-                                title="示例指标"
-                                value={11.28}
-                                precision={2}
-                                prefix={<ArrowUpOutlined/>}
-                                suffix="%"
-                            />
-                        </Card>
-                    </Col>
-                    <Col span={6}>
-                        <Card bordered={false}>
-                            <Statistic
-                                title="示例指标"
-                                value={11.28}
-                                precision={2}
-                                valueStyle={{color: '#3f8600'}}
-                                prefix={<ArrowUpOutlined/>}
-                                suffix="%"
-                            />
-                        </Card>
-                    </Col>
-                </Row>
+                {/*<Row gutter={24}>*/}
+                {/*    <Col span={6}>*/}
+                {/*        <Card bordered={false}>*/}
+                {/*            <Statistic title="今日销售额" value={126560} precision={2} prefix="$"/>*/}
+                {/*        </Card>*/}
+                {/*    </Col>*/}
+                {/*    <Col span={6}>*/}
+                {/*        <Card bordered={false}>*/}
+                {/*            <Statistic*/}
+                {/*                title="示例指标"*/}
+                {/*                value={11.28}*/}
+                {/*                precision={2}*/}
+                {/*                prefix={<ArrowUpOutlined/>}*/}
+                {/*                suffix="%"*/}
+                {/*            />*/}
+                {/*        </Card>*/}
+                {/*    </Col>*/}
+                {/*    <Col span={6}>*/}
+                {/*        <Card bordered={false}>*/}
+                {/*            <Statistic*/}
+                {/*                title="示例指标"*/}
+                {/*                value={11.28}*/}
+                {/*                precision={2}*/}
+                {/*                prefix={<ArrowUpOutlined/>}*/}
+                {/*                suffix="%"*/}
+                {/*            />*/}
+                {/*        </Card>*/}
+                {/*    </Col>*/}
+                {/*    <Col span={6}>*/}
+                {/*        <Card bordered={false}>*/}
+                {/*            <Statistic*/}
+                {/*                title="示例指标"*/}
+                {/*                value={11.28}*/}
+                {/*                precision={2}*/}
+                {/*                valueStyle={{color: '#3f8600'}}*/}
+                {/*                prefix={<ArrowUpOutlined/>}*/}
+                {/*                suffix="%"*/}
+                {/*            />*/}
+                {/*        </Card>*/}
+                {/*    </Col>*/}
+                {/*</Row>*/}
                 <br/>
                 <Row gutter={16}>
                     <Col span={18} style={{height: 300}}>

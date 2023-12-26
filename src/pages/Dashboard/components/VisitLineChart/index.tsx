@@ -21,7 +21,7 @@ interface useStaticMap {
 const VisitLineChart: React.FC = () => {
     const [activeTab, setActiveTab] = useState('pv');
     const tabList = [
-        {tab: '访问量', key: 'pv'},
+        {tab: '近一周水印使用情况', key: 'pv'},
         // { tab: 'IP', key: 'ip' }
     ];
     const chartColor = {
