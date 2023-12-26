@@ -53,11 +53,12 @@ const LoginHistory: React.FC<{}> = () => {
                 }
             };
             return await axios.post(
-                "https://4024f85r48.picp.vip//logs",
+                "https://4024f85r48.picp.vip/logs",
                 loginHistory.data,
                 loginHistory
             )
         }
+
         fetchLoginData().then((res) => {
             console.log("获取登录历史", res);
             if (res.data.statusCode === '200') {
