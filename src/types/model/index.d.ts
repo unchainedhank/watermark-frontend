@@ -16,6 +16,7 @@ namespace Model {
         email?: S;
         phoneNumber?: string;
         fingerPrint: string;
+        role: string;
     }
 
     interface Article extends CommonFields {

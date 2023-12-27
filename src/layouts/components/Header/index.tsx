@@ -8,6 +8,7 @@ import {
   MenuUnfoldOutlined,
   UserOutlined
 } from '@ant-design/icons';
+import avatarImage from '../../../assets/images/avatar.png';
 
 import './index.less';
 import Iconfont from '@/components/Iconfont';
@@ -37,7 +38,7 @@ const Header: React.FC = () => {
       <div className="left">
         <div className="logo">
           <Iconfont type="icon-react" className="logo-img" />
-          <span className="logo-text">React Admin Template</span>
+          <span className="logo-text">数字水印系统</span>
         </div>
         <div>
           {React.createElement(menuCollapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
@@ -82,6 +83,7 @@ const Header: React.FC = () => {
           postLogout().then(() => {
             Cache.removeToken();
             setIsLogin(false);
+            // @ts-ignore
             setUserInfo(null);
             navigate('/login');
           });
@@ -96,8 +98,9 @@ const Header: React.FC = () => {
 
           <Dropdown menu={{ items }}>
             <Space className="pointer">
-              <span>{userInfo?.nickname}</span>
-              <Avatar src={userInfo?.avatar} />
+              {/*<span>{userInfo?.fullName}</span>*/}
+              <Avatar src={avatarImage} />
+              {/*<Avatar src={userInfo?.avatar} />*/}
             </Space>
           </Dropdown>
         </Space>

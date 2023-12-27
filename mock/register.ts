@@ -40,34 +40,34 @@ class UserInfo {
     }
 }
 
-Mock.mock(/api\/register/, 'post', ({ body }) => {
-    const { Uid,username,phone,Email,department,password  } = JSON.parse(body);
-    const userInfo = new UserInfo();
-
-    // if (username === 'admin') {
-    //
-    //     if (password !== '123456') {
-    //         return {
-    //             code: -1,
-    //             message: '密码错误'
-    //         };
-    //     }
-    //     return {
-    //         code: 0,
-    //         message: '登录成功',
-    //         data: {
-    //             token: createToken({ uid: 1 }),
-    //             userInfo: userInfo,
-    //         }
-    //     };
-    // }
-
-    return {
-        code: 0,
-        message: '注册成功',
-        data: {
-            token: createToken({ uid: Random.natural(2, 10000) }),
-            userInfo: userInfo,
-        }
-    };
-});
+// Mock.mock(/api\/register/, 'post', ({ body }) => {
+//     const { Uid,username,phone,Email,department,password  } = JSON.parse(body);
+//     const userInfo = new UserInfo();
+//
+//     // if (username === 'admin') {
+//     //
+//     //     if (password !== '123456') {
+//     //         return {
+//     //             code: -1,
+//     //             message: '密码错误'
+//     //         };
+//     //     }
+//     //     return {
+//     //         code: 0,
+//     //         message: '登录成功',
+//     //         data: {
+//     //             token: createToken({ uid: 1 }),
+//     //             userInfo: userInfo,
+//     //         }
+//     //     };
+//     // }
+//
+//     return {
+//         code: 0,
+//         message: '注册成功',
+//         data: {
+//             token: createToken({ uid: Random.natural(2, 10000) }),
+//             userInfo: userInfo,
+//         }
+//     };
+// });

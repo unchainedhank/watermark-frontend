@@ -5,7 +5,7 @@ const MenuList: Menu.MenuItemType[] = [
     label: '控制台',
     icon: 'icon-dashboard',
     path: '/dashboard',
-    permission: 'admin'
+    // permission: 'admin'
   },
   // {
   //   label: '示例页面',
@@ -98,12 +98,18 @@ const MenuList: Menu.MenuItemType[] = [
   //   ]
   // },
   // { type: 'divider' },
+  {
+    path: '/management',
+    label: '用户管理',
+    icon: 'icon-article',
+    permission: 'admin',
+  },
 
   {
     path: '/article',
     label: '水印服务',
     icon: 'icon-article',
-    permission: 'admin',
+    // permission: 'admin',
     children: [
       // {
       //   path: '/article/list',
@@ -208,7 +214,7 @@ const MenuList: Menu.MenuItemType[] = [
     path: '/user/center',
     label: '个人中心',
     icon: 'icon-user-permissions',
-    permission: (userInfo) => userInfo.roles.includes('admin'),
+    // permission: (userInfo) => userInfo.roles.includes('admin'),
     children: [
       {
         path: '/user/center/index',
@@ -226,7 +232,7 @@ const MenuList: Menu.MenuItemType[] = [
 
 // 调用这个方法获取菜单, 具体怎么获取全看怎么写
 const generateMenuList = async (
-  userInfo: Api.GetUserInfo['response']
+  userInfo: Api.UserInfo
 ): Promise<Menu.MenuItemType[]> => {
   return MenuList;
 };

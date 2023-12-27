@@ -57,25 +57,28 @@ export function randomNumber(min: number, max: number) {
 
 export function hasPermission(
   permission: Menu.Permission,
-  userInfo: Api.GetUserInfo['response']
+  userInfo: Api.UserInfo
 ): boolean {
-  const { roles = [] } = userInfo || {};
+  const roles = userInfo.role;
   // 没有配置权限, 不校验
   if (!permission) {
     return true;
   }
   if (typeof permission === 'string' || typeof permission === 'number') {
-    return roles.includes(permission);
+    if (roles === 'admin') {
+      return true;
+    }
+    return roles === permission;
   }
 
   // 多个角色, 有一个符合即可
-  if (Array.isArray(permission)) {
-    return permission.some((p) => roles.includes(p));
-  }
-
-  if (typeof permission === 'function') {
-    return permission(userInfo!);
-  }
+  // if (Array.isArray(permission)) {
+  //   return permission.some((p) => roles.includes(p));
+  // }
+  //
+  // if (typeof permission === 'function') {
+  //   return permission(userInfo!);
+  // }
 
   return false;
 }

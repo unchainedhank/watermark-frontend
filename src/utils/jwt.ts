@@ -16,19 +16,19 @@ export function parseToken<D = TokenData>(token: string): TokenMeta<D> | undefin
 }
 
 export function validateToken(): boolean {
-  const token = Cache.getString(Config.tokenKey);
-  if (!token) {
-    return false;
-  }
-
-  const tokenData = parseToken(token);
-  // token 存在 && 含有uid && 未过期
-  if (
-    tokenData !== undefined &&
-    tokenData?.data?.uid > 0 &&
-    tokenData.exp > new Date().getTime() / 1000
-  ) {
-    return true;
-  }
-  return false;
+  // const token = Cache.getString(Config.tokenKey);
+  // if (!token) {
+  //   return false;
+  // }
+  //
+  // const tokenData = parseToken(token);
+  // // token 存在 && 含有uid && 未过期
+  // if (
+  //   tokenData !== undefined &&
+  //   tokenData?.data?.uid > 0 &&
+  //   tokenData.exp > new Date().getTime() / 1000
+  // ) {
+  //   return true;
+  // }
+  return true;
 }

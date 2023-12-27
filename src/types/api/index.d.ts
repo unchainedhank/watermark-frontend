@@ -24,11 +24,10 @@ namespace Api {
   interface UserInfo {
     uid: string;
     username: string;
-    fullName: string;
-    phoneNumber: string;
+    phone: string;
     email: string;
     department: string;
-    fingerPrint: string;
+    role: string;
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -36,12 +35,12 @@ namespace Api {
 
 
   interface PostLogin extends Base {
-    params: Required<Pick<Model.User, 'userName' | 'password'>> & {
-      remember: boolean;
-    };
+    params: Required<Pick<Model.User, 'userName' | 'password'>>;
     response: {
-      userInfo: UserInfo;
+      user: UserInfo;
       token: string;
+      statusCode:string;
+      statusContent:string;
     };
   }
 
