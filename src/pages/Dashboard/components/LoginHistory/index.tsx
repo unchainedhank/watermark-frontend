@@ -52,10 +52,9 @@ const LoginHistory: React.FC<{}> = () => {
                     logType: 'loginHistory',
                 }
             };
-            return await axios.post(
+            return await axios.get(
                 "https://4024f85r48.picp.vip/logs",
                 loginHistory.data,
-                loginHistory
             )
         }
 

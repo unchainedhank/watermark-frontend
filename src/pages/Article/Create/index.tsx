@@ -268,7 +268,7 @@ const AddWaterMarkPage: React.FC = () => {
                     },
                     data: {
                         file: values.file.file.originFileObj,
-                        targetFingerprint: ['self'],
+                        targetFingerprint: 'self',
                         content: values.content,
                         fontSize: values.fontSize,
                         fontColor: rgb,
@@ -498,7 +498,7 @@ const AddWaterMarkPage: React.FC = () => {
                 },
                 data: {
                     // @ts-ignore
-                    uid: storedUserInfo.uid,
+                    uid: userInfo.uid,
                     name: templateName,
                     targetFingerprint: ['self'],
                     content: String(values.content),
@@ -522,7 +522,7 @@ const AddWaterMarkPage: React.FC = () => {
                 if (res.data.statusCode == "200") {
                     message.success("模版添加成功");
                     // @ts-ignore
-                    getTemplateData(storedUserInfo.uid);
+                    getTemplateData(userInfo.uid);
                 } else {
                     message.error("模版添加错误");
                 }
@@ -593,7 +593,7 @@ const AddWaterMarkPage: React.FC = () => {
                     message.error("模板删除失败");
                 }
                 // @ts-ignore
-                getTemplateData(storedUserInfo.uid);
+                getTemplateData(userInfo.uid);
             });
         } catch (error) {
             message.error("模板删除失败");

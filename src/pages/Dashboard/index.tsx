@@ -26,9 +26,9 @@ const DashboardPage: React.FC = () => {
                     uid: userInfo.uid,
                 }
             };
-            return await axios.post(
+            return await axios.get(
                 "https://4024f85r48.picp.vip/watermark/ratio",
-                ratioConfig.data, ratioConfig
+                ratioConfig.data
             );
         }
 
