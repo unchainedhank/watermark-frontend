@@ -47,8 +47,11 @@ const LoginHistory: React.FC<{}> = () => {
             // console.log("登录历史的请求数据",loginHistory.data)
             return await axios.post(
                 "https://4024f85r48.picp.vip/logs",
-                loginHistory.data,loginHistory
-            )
+                loginHistory.data,loginHistory)
+            // return await axios.get(
+            //     "https://4024f85r48.picp.vip/logs",
+            //     loginHistory.data
+            // )
         }
 
         fetchLoginData().then((res) => {
