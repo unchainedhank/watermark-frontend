@@ -1,125 +1,125 @@
-import { GlobalContext } from '@/contexts/Global';
-import { Dropdown, Layout, theme, Space, MenuProps, Avatar } from 'antd';
-import React, { useContext } from 'react';
+import {GlobalContext} from '@/contexts/Global';
+import {Dropdown, Layout, theme, Space, MenuProps, Avatar} from 'antd';
+import React, {useContext} from 'react';
 import {
-  EditOutlined,
-  LogoutOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  UserOutlined
+    EditOutlined,
+    LogoutOutlined,
+    MenuFoldOutlined,
+    MenuUnfoldOutlined,
+    UserOutlined
 } from '@ant-design/icons';
 import avatarImage from '../../../assets/images/avatar.png';
 
 import './index.less';
 import Iconfont from '@/components/Iconfont';
 import Cache from '@/utils/cache';
-import { postLogout } from '@/api';
-import { MenuContext } from '@/contexts/Menu';
-import { useNavigate } from 'react-router-dom';
+import {postLogout} from '@/api';
+import {MenuContext} from '@/contexts/Menu';
+import {useNavigate} from 'react-router-dom';
 import {
-  FullScreenIcon,
-  ThemeIcon,
-  SettingIcon
+    FullScreenIcon,
+    ThemeIcon,
+    SettingIcon
 } from './components/icons';
 
 const Header: React.FC = () => {
-  const { userInfo, setUserInfo, setIsLogin } = useContext(GlobalContext);
+    const {userInfo, setUserInfo, setIsLogin} = useContext(GlobalContext);
 
-  const { menuCollapsed, setMenuCollapsed } = useContext(MenuContext);
+    const {menuCollapsed, setMenuCollapsed} = useContext(MenuContext);
 
-  const {
-    token: { colorBgContainer }
-  } = theme.useToken();
+    const {
+        token: {colorBgContainer}
+    } = theme.useToken();
 
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const renderLeftContent = () => {
-    return (
-      <div className="left">
-        <div className="logo">
-          <Iconfont type="icon-react" className="logo-img" />
-          <span className="logo-text">数字水印系统</span>
-        </div>
-        <div>
-          {React.createElement(menuCollapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-            onClick: () => setMenuCollapsed(!menuCollapsed)
-          })}
-        </div>
-      </div>
-    );
-  };
-  const renderRightContent = () => {
-    const renderIcons = () => {
-      return (
-        <>
-          {/*<SearchIcon />*/}
-          {/*<NotifyIcon />*/}
-          <FullScreenIcon />
-          {/*<GithubIcon />*/}
-          <ThemeIcon />
-          <SettingIcon />
-        </>
-      );
+    const renderLeftContent = () => {
+        return (
+            <div className="left">
+                <div className="logo">
+                    <Iconfont type="icon-react" className="logo-img"/>
+                    <span className="logo-text">数字水印系统</span>
+                </div>
+                <div>
+                    {React.createElement(menuCollapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
+                        onClick: () => setMenuCollapsed(!menuCollapsed)
+                    })}
+                </div>
+            </div>
+        );
     };
-    const items: MenuProps['items'] = [
-      {
-        label: <a>个人中心</a>,
-        icon: <UserOutlined />,
-        key: 'userCenter'
-      },
-      {
-        label: <a>修改资料</a>,
-        key: 'update',
-        icon: <EditOutlined />
-      },
-      {
-        type: 'divider'
-      },
-      {
-        label: '退出',
-        icon: <LogoutOutlined />,
-        key: 'logout',
-        onClick: () => {
-          postLogout().then(() => {
-            Cache.removeToken();
-            setIsLogin(false);
-            // @ts-ignore
-            setUserInfo(null);
-            navigate('/login');
-          });
-        }
-      }
-    ];
+    const renderRightContent = () => {
+        const renderIcons = () => {
+            return (
+                <>
+                    {/*<SearchIcon />*/}
+                    {/*<NotifyIcon />*/}
+                    <FullScreenIcon/>
+                    {/*<GithubIcon />*/}
+                    <ThemeIcon/>
+                    <SettingIcon/>
+                </>
+            );
+        };
+        const items: MenuProps['items'] = [
+            {
+                label: <a>个人中心</a>,
+                icon: <UserOutlined/>,
+                key: 'userCenter'
+            },
+            {
+                label: <a>修改资料</a>,
+                key: 'update',
+                icon: <EditOutlined/>
+            },
+            {
+                type: 'divider'
+            },
+            {
+                label: '退出',
+                icon: <LogoutOutlined/>,
+                key: 'logout',
+                onClick: () => {
+                    // postLogout().then(() => {
+                    Cache.removeToken();
+                    setIsLogin(false);
+                    // @ts-ignore
+                    setUserInfo(null);
+                    navigate('/login');
+                    // });
+                }
+            }
+        ];
 
+        return (
+            <div className="right">
+                <Space size="middle">
+                    {renderIcons()}
+
+                    <Dropdown menu={{items}}>
+                        <Space className="pointer">
+                            {/*<span>{userInfo?.fullName}</span>*/}
+                            <Avatar src={avatarImage}/>
+                            {/*<Avatar src={userInfo?.avatar} />*/}
+                        </Space>
+                    </Dropdown>
+                </Space>
+            </div>
+        );
+    };
     return (
-      <div className="right">
-        <Space size="middle">
-          {renderIcons()}
-
-          <Dropdown menu={{ items }}>
-            <Space className="pointer">
-              {/*<span>{userInfo?.fullName}</span>*/}
-              <Avatar src={avatarImage} />
-              {/*<Avatar src={userInfo?.avatar} />*/}
-            </Space>
-          </Dropdown>
-        </Space>
-      </div>
+        <Layout.Header
+            className="header"
+            style={{
+                background: colorBgContainer
+            }}
+        >
+            <>
+                {renderLeftContent()}
+                {renderRightContent()}
+            </>
+        </Layout.Header>
     );
-  };
-  return (
-    <Layout.Header
-      className="header"
-      style={{
-        background: colorBgContainer
-      }}
-    >
-      <>
-        {renderLeftContent()}
-        {renderRightContent()}
-      </>
-    </Layout.Header>
-  );
 };
 
 export default React.memo(Header);

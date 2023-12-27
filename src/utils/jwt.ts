@@ -15,7 +15,7 @@ export function parseToken<D = TokenData>(token: string): TokenMeta<D> | undefin
   }
 }
 
-export function validateToken(): boolean {
+export function  validateToken(): boolean {
   // const token = Cache.getString(Config.tokenKey);
   // if (!token) {
   //   return false;
