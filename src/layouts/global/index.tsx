@@ -5,7 +5,7 @@ import { getUserInfo } from '@/api';
 import { validateToken } from '@/utils/jwt';
 import PageLoading from '@/components/Loading/PageLoading';
 import { GlobalContext } from '@/contexts/Global';
-import { AxiosError } from 'axios';
+import axios, {AxiosError, AxiosRequestConfig} from 'axios';
 import { SettingContext } from '@/contexts/Setting';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import MultitabLayout from '../multiTab';
@@ -16,6 +16,7 @@ import React from 'react';
 import './index.less';
 import './fixed-layout.less';
 import { useUpdateEffect } from 'ahooks';
+import Cache from "@/utils/cache";
 
 const GlobalLayout: React.FC = () => {
   const [getUserInfoLoading, setGetUserInfoLoading] = useState(true);
@@ -35,6 +36,24 @@ const GlobalLayout: React.FC = () => {
     // if (pathname === '/') {
     //   navigate('/dashboard');
     // }
+    const fetchUserInfo = async (username:string,password:string) => {
+      let infoConfig: AxiosRequestConfig = {
+        data: {
+          uid: username,
+          password: password,
+        },
+        headers: {
+          contentType: "application/json",
+        }
+      };
+      return await axios.post(
+          "https://4024f85r48.picp.vip/user/login",
+          // "http://localhost:30098/user/login",
+          infoConfig.data,
+          infoConfig
+      );
+    }
+
     console.log(validateToken())
     if (!validateToken()) {
       // token 无效
@@ -44,6 +63,34 @@ const GlobalLayout: React.FC = () => {
 
     setIsLogin(true);
     setGetUserInfoLoading(false);
+    const rememberMeInfo = localStorage.getItem('rememberMeInfo');
+    if (rememberMeInfo) {
+      console.log("获取的登录缓存：", rememberMeInfo)
+      const {username, password, rememberMe} = JSON.parse(rememberMeInfo);
+      fetchUserInfo(username,password).then((res)=>{
+        console.log("登录返回值")
+        console.log(res);
+        if (res.data.statusCode == "200") {
+          let user = res.data.user;
+
+          const newUserInfo = {
+            uid: user.uid,
+            username:user.username,
+            phone: user.phone,
+            email: user.email,
+            department: user.department,
+            role: user.userRole,
+          }
+          setUserInfo!(newUserInfo);
+          console.log(newUserInfo)
+
+          navigate('/dashboard');
+        } else {
+          message.error(res.data.statusContent);
+          navigate("/login");
+        }
+      })
+    }
     // setUserInfo!(data);
     // 第一个接口必须要保成功
     // todo: async await

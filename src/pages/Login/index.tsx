@@ -1,169 +1,143 @@
-import React, {useContext, useEffect} from 'react';
-import {Button, Checkbox, Col, ConfigProvider, Form, Input, Row, theme, Typography, Flex, message} from 'antd';
+import React, {createContext, Dispatch, SetStateAction, useContext, useEffect, useState} from 'react';
+import { Button, Checkbox, Col, ConfigProvider, Form, Input, Row, theme, Typography ,Flex} from 'antd';
 import Cache from '@/utils/cache';
+import type {FlexProps} from "antd";
+import { validateToken } from '@/utils/jwt';
+import { postLogin } from '@/api';
+import { useRequest } from 'ahooks';
 import './index.less';
 import Config from '@/configs';
 import {Link, useNavigate} from 'react-router-dom';
-import axios from "axios";
-import {useForm} from "antd/es/form/Form";
-import {GlobalContext} from "@/contexts/Global";
+import UserInfo = Api.UserInfo;
 
 interface IFormState {
-    username: string;
-    password: string;
-    remember: boolean;
+  uid: string;
+  password: string;
+  remember: boolean;
 }
 
 
 // todo: dark theme 适配
 const LoginPage: React.FC = () => {
 
-    const {userInfo, setUserInfo} = useContext(GlobalContext);
-    const [form] = useForm(); // 使用 useForm 声明 form
-    useEffect(() => {
-        // 从 localStorage 中获取记住的用户名和密码
-        const rememberMeInfo = localStorage.getItem('rememberMeInfo');
-        if (rememberMeInfo) {
-            console.log("获取的登录缓存：", rememberMeInfo)
-            const {username, password, rememberMe} = JSON.parse(rememberMeInfo);
-            if (rememberMe == true) {
-                form.setFieldsValue({
-                    username,
-                    password,
-                    remember: true,
-                });
-            }
+  const navigate = useNavigate();
+  const { loading: loginRunning, run: submit } = useRequest(postLogin, {
+    manual: true,
+    debounceWait: 300,
+    onSuccess: (data) => {
+      Cache.setToken(data.token);
+      const userInfo = data.userInfo;
+      console.log("userInfo", userInfo);
+      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+      navigate('/dashboard');
+    }
+  });
 
-        }
+  document.title = Config.pageTitle;
 
-    }, []);
+  const onFinish = (values: IFormState) => {
+    submit(values);
+    // postLogin(values)
+    //   .then((data) => {
+    //     Cache.setToken(data.token);
+    //     toDashboardPage();
+    //   })
+    //   .catch((e) => 1);
+  };
 
+  useEffect(() => {
+    if (validateToken()) {
+      // 跳转到控制台页, 再通过接口继续判断token的有效性
+      navigate('/dashboard');
+    }
+  }, []);
 
-    const navigate = useNavigate();
-    document.title = Config.pageTitle;
+  // example: 使用useForm
+  // const [form] = useForm<IFormState>();
+  // form.validateFields().then(value => {
+  //   value.password // xxxx
+  // })
 
-    const onFinish = (values: IFormState) => {
-
-        let loginConfig = {
-            data: {
-                uid: values.username,
-                password: values.password,
-            },
-            headers: {
-                contentType: "application/json",
-            }
-        };
-        axios.post(
-            "https://4024f85r48.picp.vip/user/login",
-            // "http://localhost:30098/user/login",
-            loginConfig.data,
-            loginConfig
-        ).then((res) => {
-            console.log("登录返回值")
-            console.log(res);
-            if (res.data.statusCode == "200") {
-                const userInfoRes = res.data.user;
-
-                const newUserInfo = {
-                    uid: res.data.user.uid,
-                    username:res.data.user.username,
-                    phone: res.data.user.phone,
-                    email: res.data.user.email,
-                    department: res.data.user.department,
-                    role: res.data.user.userRole,
-                }
-                setUserInfo(newUserInfo);
-                console.log(userInfo)
-
-
-                // localStorage.setItem('userInfo', JSON.stringify(userInfo));
-                localStorage.setItem('rememberMeInfo', JSON.stringify({
-                    username: values.username,
-                    password: values.password,
-                    rememberMe: values.remember,
-                }));
-
-                Cache.setToken(res.data.token);
-                navigate('/dashboard');
-                message.success("登录成功");
-            } else {
-                message.error(res.data.statusContent);
-            }
-        });
-
-    };
-
-    const tailLayout = {
-        wrapperCol: {offset: 4, span: 16},
-    };
-    const initialValues: Partial<IFormState> = {
-        remember: false,
-        username: '',
-        password: ''
-    };
-    return (
+  const tailLayout = {
+    wrapperCol: { offset: 4, span: 16 },
+  };
+  const initialValues: Partial<IFormState> = {
+    remember: true,
+    uid: 'admin',
+    password: '123456'
+  };
+  return (
         <>
-            <ConfigProvider
-                theme={{
-                    algorithm: [theme.defaultAlgorithm]
-                }}
-            >
-                <div className="bg-wrap"></div>
-                <Row className="login-wrap">
-                    <Col span={15} className="login-banner"></Col>
-                    <Col span={9} className="login-form-wrap">
-                        <Typography.Title style={{textAlign: 'center'}}>数字水印系统</Typography.Title>
-                        <br/>
-                        <Form<IFormState>
-                            name="loginForm"
-                            form={form}
-                            labelCol={{span: 5}}
-                            wrapperCol={{span: 19}}
-                            style={{maxWidth: 600}}
-                            initialValues={initialValues}
-                            onFinish={onFinish}
-                            autoComplete="on"
-                        >
-                            <Form.Item
-                                label="用户名"
-                                name="username"
-                                rules={[{required: true, message: '请输入用户名!'}]}
-                            >
-                                <Input placeholder="请输入uid"/>
-                            </Form.Item>
+          <ConfigProvider
+              theme={{
+                algorithm: [theme.defaultAlgorithm]
+              }}
+          >
+            <div className="bg-wrap"></div>
+            <Row className="login-wrap">
+              <Col span={15} className="login-banner"></Col>
+              <Col span={9} className="login-form-wrap">
+                <Typography.Title style={{ textAlign: 'center' }}>数字水印系统</Typography.Title>
+                <br />
+                <Form<IFormState>
+                    name="loginForm"
+                    labelCol={{ span: 5 }}
+                    wrapperCol={{ span: 19 }}
+                    style={{ maxWidth: 600 }}
+                    initialValues={initialValues}
+                    onFinish={onFinish}
+                    autoComplete="off"
+                >
+                  <Form.Item
+                      label="用户名"
+                      name="uid"
+                      rules={[{ required: true, message: '请输入用户名!' }]}
+                  >
+                    <Input placeholder="admin" />
+                  </Form.Item>
 
-                            <Form.Item
-                                label="密码"
-                                name="password"
-                                rules={[{required: true, message: '请输入密码!'}]}
-                            >
-                                <Input.Password placeholder="请输入密码"/>
-                            </Form.Item>
+                  <Form.Item
+                      label="密码"
+                      name="password"
+                      rules={[{ required: true, message: '请输入密码!' }]}
+                  >
+                    <Input.Password placeholder="123456" />
+                  </Form.Item>
 
-                            <Form.Item name="remember" valuePropName="checked" wrapperCol={{offset: 5}}>
-                                <Checkbox>记住我</Checkbox>
-                            </Form.Item>
+                  <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 5 }}>
+                    <Checkbox>记住我</Checkbox>
+                  </Form.Item>
 
-                            <Form.Item  {...tailLayout}>
-                                <Flex>
-                                    <Button type="primary" htmlType="submit">
-                                        登录
-                                    </Button>
-                                    <Link to="/register">
-                                        <Button type="primary" htmlType="button" style={{margin: '0 25px'}}>
-                                            注册
-                                        </Button>
-                                    </Link>
-                                </Flex>
+                  {/*<Form.Item wrapperCol={{ offset: 5, span: 16 }}>*/}
+                  {/*  <Button loading={loginRunning} type="primary" htmlType="submit">*/}
+                  {/*    登录*/}
+                  {/*  </Button>*/}
+                  {/*</Form.Item>*/}
 
-                            </Form.Item>
+                  {/*<Form.Item wrapperCol={{ offset: 5, span: 16 } }>*/}
+                  {/*  <Link to="/register">*/}
+                  {/*    <Button type="primary" htmlType="button">*/}
+                  {/*      注册*/}
+                  {/*    </Button>*/}
+                  {/*  </Link>*/}
+                  {/*</Form.Item>*/}
+                  <Form.Item  {...tailLayout}>
+                    <Button loading={loginRunning} type="primary" htmlType="submit"  >
+                      登录
+                    </Button  >
+                    <Link to="/register">
+                      <Button type="primary" htmlType="button"  style={{ margin: '0 0 0 25px' }}>
+                        注册
+                      </Button>
+                    </Link>
+                  </Form.Item>
 
-                        </Form>
-                    </Col>
-                </Row>
-            </ConfigProvider>
+                </Form>
+              </Col>
+            </Row>
+          </ConfigProvider>
         </>
-    );
+  );
 };
 
 export default LoginPage;
