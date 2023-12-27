@@ -1,18 +1,23 @@
-## 使用 nginx 作为基础镜像
-#FROM nginx:latest
-#
-## 将本地构建好的文件复制到 nginx 默认的静态文件路径
-#COPY ./dist /usr/share/nginx/html
-#COPY ./nginx.conf /etc/nginx/nginx.conf
-## 暴露端口
-#EXPOSE 5173
-#
-## 启动 nginx
-#CMD ["nginx", "-g", "daemon off;"]
-FROM node
-WORKDIR /app
-COPY . .
+FROM node:18-alpine as BUILD_IMAGE
+WORKDIR /app/wm-app
+
+COPY package.json .
+
 RUN npm install
+
+COPY . .
+
 RUN npm run build
+
+
+FROM node:18-alpine as PROD_IMAGE
+WORKDIR /app/wm-app
+
+COPY --from=BUILD_IMAGE /app/wm-app/dist/ /app/wm-app/dist/
+
 EXPOSE 3000
-CMD ["npm", "run", "dev"]
+COPY package.json .
+COPY vite.config.ts .
+RUN npm install typescript
+CMD ["npm","run","preview"]
+
