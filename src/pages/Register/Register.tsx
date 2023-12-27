@@ -91,7 +91,7 @@ export default function register(this: IFormState) {
         console.log("发送请求信息");
         console.log(registerConfig.data)
         await axios.post(
-            "http://localhost:30098/user/register",
+            "https://4024f85r48.picp.vip/user/register",
             registerConfig.data,
             registerConfig
         ).then(response => {

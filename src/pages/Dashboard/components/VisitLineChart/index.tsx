@@ -39,6 +39,27 @@ const VisitLineChart: React.FC = () => {
     //   .reverse();
     const {userInfo} = useContext(GlobalContext);
     const [useData, setUseData] = useState<any[]>();
+    //setUseData([{Date:'12.29',Integer:'6'}])
+    // interface DataType {
+    //     Date:string,
+    //     Integer:number,
+    // }
+    // const userdata: DataType[] = [
+    //     {
+    //         Date:'12.24',
+    //         Integer:5,
+    //     },
+    //     {
+    //         Date:'12.25',
+    //         Integer:8,
+    //     },
+    //     {
+    //         Date:'12.26',
+    //         Integer:10,
+    //     },
+    //
+    // ];
+    //const [useData, setUseData] = useState(userdata);
     useEffect(() => {
         const fetchUseData = async () => {
             let useConfig: AxiosRequestConfig = {
@@ -55,9 +76,10 @@ const VisitLineChart: React.FC = () => {
         fetchUseData().then((res) => {
             console.log("获取水印使用统计数据", res);
             if (res.data.statusCode === '200') {
-                const temp = Object.entries(res.data.dateCounts).map(([name, counts]) => ({
-                    name,
-                    counts,
+                const temp = Object.entries(res.data.dateCounts).map(([Date,Integer]) => ({
+                    //name,
+                    Date,
+                    Integer,
                 }));
                 console.log(temp);
                 setUseData(temp)
@@ -69,18 +91,25 @@ const VisitLineChart: React.FC = () => {
     return (
         <Card activeTabKey={activeTab} onTabChange={(key) => setActiveTab(key)} tabList={tabList}>
             <ResponsiveContainer width={'100%'} height={300}>
-                <AreaChart data={useData}>
+                <AreaChart
+                    data={useData}
+                    margin={{
+                        top: 20, right: 20, bottom: 20, left: 20,
+                    }}
+                >
                     <CartesianGrid strokeDasharray="3 3"/>
-                    <XAxis dataKey="name"/>
-                    <YAxis/>
+                    <XAxis dataKey="Date"/>
+                    <YAxis type="number" domain={['auto', 'auto']}/>
                     <Tooltip wrapperStyle={{outline: 'none'}}/>
                     <Area
                         type="monotone"
                         strokeWidth={2}
-                        dataKey={activeTab}
-                        stroke={chartColor[activeTab as 'pv'].stroke}
-                        fill={chartColor[activeTab as 'pv'].fill}
+                        //dataKey={activeTab}
+                        dataKey={"Integer"}
+                        // stroke={chartColor[activeTab as 'pv'].stroke}
+                        // fill={chartColor[activeTab as 'pv'].fill}
                     />
+
                 </AreaChart>
             </ResponsiveContainer>
         </Card>

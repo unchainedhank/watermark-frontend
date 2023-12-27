@@ -16,8 +16,8 @@ import {GlobalContext} from "@/contexts/Global";
 const DashboardPage: React.FC = () => {
     const {userInfo } = useContext(GlobalContext);
     const [ratio, setRatio] = useState([
-        { name: '明水印', value: 1 },
-        { name: '暗水印', value: 1 },
+        { name: '明水印', value: 15 },
+        { name: '暗水印', value: 21 },
     ]);
     useEffect(() => {
         const fetchRatioData = async () => {
@@ -103,7 +103,7 @@ const DashboardPage: React.FC = () => {
                                         nameKey="name"
                                         cx="50%"
                                         cy="50%"
-                                        outerRadius={90}
+                                        outerRadius={70}
                                         label
                                     >
                                         {ratio.map((entry, index) => (
