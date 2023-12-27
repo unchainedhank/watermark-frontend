@@ -29,9 +29,9 @@ const onFinish = async (values: any) => {
   ).then(response => {
     console.log(response);
     if (response.data.statusCode == '200') {
-      message.success("注册成功");
+      message.success("信息提交成功");
     } else {
-      message.error("注册失败");
+      message.error("信息提交失败");
     }
   });
 }
@@ -50,8 +50,8 @@ const UserCenterUpdatePage: React.FC = () => {
   };
   const formLayout = {
     borderRadius: ' 10px',
-    backgroundColor: '#ffffff',
-    // border: '2px solid #bfbfbf',
+    //backgroundColor: '#ffffff',
+    border: '2px solid #bfbfbf',
     // margin: '0px 0px 20px 0px',
     //width: '350px',
     //height:'50px',

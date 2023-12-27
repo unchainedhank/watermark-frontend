@@ -1,6 +1,6 @@
 import {ArrowUpOutlined} from '@ant-design/icons';
 import {Card, Col, Row, Statistic} from 'antd';
-import {Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip} from 'recharts';
+import {Cell, Pie, PieChart, ResponsiveContainer, Tooltip} from 'recharts';
 import LoginHistory from './components/LoginHistory';
 import TodoList from './components/TodoList';
 import VisitLineChart from './components/VisitLineChart';
@@ -26,9 +26,9 @@ const DashboardPage: React.FC = () => {
                     uid: userInfo.uid,
                 }
             };
-            return await axios.get(
+            return await axios.post(
                 "https://4024f85r48.picp.vip/watermark/ratio",
-                ratioConfig.data
+                ratioConfig.data, ratioConfig
             );
         }
 
@@ -103,11 +103,8 @@ const DashboardPage: React.FC = () => {
                                         nameKey="name"
                                         cx="50%"
                                         cy="50%"
-                                        innerRadius={40}
-                                        outerRadius={80}
+                                        outerRadius={70}
                                         label
-                                        animationBegin={1}
-
                                     >
                                         {ratio.map((entry, index) => (
                                             <Cell
@@ -118,7 +115,6 @@ const DashboardPage: React.FC = () => {
                                     </Pie>
 
                                     <Tooltip wrapperStyle={{outline: 'none'}}/>
-                                    <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
                         </Card>
