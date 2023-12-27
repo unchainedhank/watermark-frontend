@@ -1,6 +1,6 @@
 import {ArrowUpOutlined} from '@ant-design/icons';
 import {Card, Col, Row, Statistic} from 'antd';
-import {Cell, Pie, PieChart, ResponsiveContainer, Tooltip} from 'recharts';
+import {Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip} from 'recharts';
 import LoginHistory from './components/LoginHistory';
 import TodoList from './components/TodoList';
 import VisitLineChart from './components/VisitLineChart';
@@ -103,8 +103,11 @@ const DashboardPage: React.FC = () => {
                                         nameKey="name"
                                         cx="50%"
                                         cy="50%"
-                                        outerRadius={70}
+                                        innerRadius={40}
+                                        outerRadius={80}
                                         label
+                                        animationBegin={1}
+
                                     >
                                         {ratio.map((entry, index) => (
                                             <Cell
@@ -115,6 +118,7 @@ const DashboardPage: React.FC = () => {
                                     </Pie>
 
                                     <Tooltip wrapperStyle={{outline: 'none'}}/>
+                                    <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
                         </Card>

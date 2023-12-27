@@ -9,7 +9,7 @@ import {
     YAxis,
     CartesianGrid,
     Tooltip,
-    ResponsiveContainer
+    ResponsiveContainer, Legend
 } from 'recharts';
 import axios, {AxiosRequestConfig} from "axios";
 import {GlobalContext} from "@/contexts/Global";
@@ -21,7 +21,7 @@ interface useStaticMap {
 const VisitLineChart: React.FC = () => {
     const [activeTab, setActiveTab] = useState('counts');
     const tabList = [
-        {tab: '近一周水印使用情况', key: 'counts'},
+        {tab: '添加水印总数', key: 'counts'},
         // { tab: 'IP', key: 'ip' }
     ];
     const chartColor = {
@@ -72,13 +72,36 @@ const VisitLineChart: React.FC = () => {
                              formatter={(value, name, props) => {
                                  return [`添加水印总数：${value}`]; // 自定义 Tooltip 显示的内容，“数量”为中文提示
                              }}/>
+                    <defs>
+                        <linearGradient id="color1" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="color2" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
+                        </linearGradient>
+                    </defs>
                     <Area
                         type="monotone"
                         strokeWidth={2}
                         dataKey={activeTab}
                         stroke={chartColor[activeTab as 'counts'].stroke}
                         fill={chartColor[activeTab as 'counts'].fill}
+
+                        fillOpacity={0.5} // 设置填充透明度
+                        animationDuration={1000} // 添加动画效果
+                        isAnimationActive={true}
+                        connectNulls // 连接 null 数据点
+                        dot={{ stroke: 'black', strokeWidth: 2 }} // 设置数据点的样式
+                        activeDot={{ r: 6 }} // 设置激活状态下数据点的样式
+
                     />
+                    <defs>
+                        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="4" dy="4" stdDeviation="2" floodColor="#8884d8" floodOpacity="0.5" />
+                        </filter>
+                    </defs>
                 </AreaChart>
             </ResponsiveContainer>
         </Card>
