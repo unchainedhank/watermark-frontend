@@ -11,7 +11,8 @@ import axios, {AxiosRequestConfig} from "axios";
 
 const LoginHistory: React.FC<{}> = () => {
 
-    const {userInfo,setUserInfo} = useContext(GlobalContext);
+    const {userInfo} = useContext(GlobalContext);
+    console.log(userInfo)
     const [loginHistoryData, setLoginHistoryData] = useState();
     const columns: ColumnsType<Model.LoginHistory> = [
         {
@@ -34,6 +35,14 @@ const LoginHistory: React.FC<{}> = () => {
         }
     ];
 
+    // 使用相同数据构造数组, 此时没有有效的key
+    // const data: Model.LoginHistory[] = Array(5).fill({
+    //     id: randomNumber(10, 100000),
+    //     userId: 1,
+    //     loginIp: '127.0.0.1',
+    //     nickname: 'admin',
+    //     create_time: dayjs().subtract(3, 'second').format(DayjsFormatEnum.second)
+    // });
 
     useEffect(() => {
         const fetchLoginData = async () => {
@@ -43,39 +52,28 @@ const LoginHistory: React.FC<{}> = () => {
                     logType: 'loginHistory',
                 }
             };
-            // console.log("登录历史的info", userInfo);
-            // console.log("登录历史的请求数据",loginHistory.data)
-            return await axios.post(
+            return await axios.get(
                 "https://4024f85r48.picp.vip/logs",
-                loginHistory.data,loginHistory
+                loginHistory.data,
             )
         }
 
         fetchLoginData().then((res) => {
-            // console.log("获取登录历史", res);
+            console.log("获取登录历史", res);
             if (res.data.statusCode === '200') {
-                const adaptedData = res.data.logs.map((log:any) => ({
-                    nickname: log.userName,
-                    loginIp: log.ip,
-                    create_time: log.time,
-                    key: log.logId.toString(), // 添加一个 key，以便 React 可以唯一识别每个项目
-                })).reverse();
-                setLoginHistoryData(adaptedData);
+                setLoginHistoryData(res.data.logs);
             }
         });
     }, [])
 
     return (
-        <Card title="登录历史">
-        {/*<Card title="登录历史" extra={<Link to="/">查看更多</Link>}>*/}
+        <Card title="登录历史" extra={<Link to="/">查看更多</Link>}>
             <Table
-                // rowKey={() => randomNumber(10, 100000)}
+                rowKey={() => randomNumber(10, 100000)}
                 pagination={false}
                 size="small"
                 columns={columns}
                 dataSource={loginHistoryData}
-                scroll={{ y: 165 }} // 设置固定高度为300像素，超出部分将出现垂直滚动条
-                // pagination={{ pageSize: 10 }} // 设置分页，每页显示10条数据（可根据需求调整）
             />
         </Card>
     );
