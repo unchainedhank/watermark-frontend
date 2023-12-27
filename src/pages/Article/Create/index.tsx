@@ -199,6 +199,7 @@ const AddWaterMarkPage: React.FC = () => {
                         'Content-Type': 'multipart/form-data',
                     },
                     data: {
+                        uid: userInfo.uid,
                         targetFingerprint: [values.privateKey],
                         file: values.file.file.originFileObj,
                     }
@@ -267,6 +268,7 @@ const AddWaterMarkPage: React.FC = () => {
                         'Content-Type': 'multipart/form-data',
                     },
                     data: {
+                        uid: userInfo.uid,
                         file: values.file.file.originFileObj,
                         targetFingerprint: 'self',
                         content: values.content,
@@ -353,6 +355,7 @@ const AddWaterMarkPage: React.FC = () => {
                         'Content-Type': 'multipart/form-data',
                     },
                     data: {
+                        uid: userInfo.uid,
                         file: values.file.file.originFileObj,
                         targetFingerprint: [values.privateKey],
                         content: values.content,
@@ -430,7 +433,7 @@ const AddWaterMarkPage: React.FC = () => {
         message.error("水印请求提交错误，请检查表单");
     };
 
-    const [watermarkTypeSelect, setWatermarkTypeSelect] = useState('');
+    const [watermarkTypeSelect, setWatermarkTypeSelect] = useState('visible');
     const onTypeChange = (e: RadioChangeEvent) => {
         console.log('radio checked', e.target.value);
         setWatermarkTypeSelect(e.target.value);

@@ -33,5 +33,32 @@
 //    border-radius: 0 6px 6px 0;
 //  }
 //}
+input{
+  &::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #a5a5a5;
+  }
+  &::-webkit-input-placeholder {
+    /* WebKit browsers，webkit内核浏览器 */
+    color: #ccc;
+    font-size: 16px;
+  }
+  &:-moz-placeholder {
+    /* Mozilla Firefox 4 to 18 */
+    color: #ccc;
+    font-size: 16px;
+  }
+  &::-moz-placeholder {
+    /* Mozilla Firefox 19+ */
+    color: #ccc;
+    font-size: 16px;
+  }
+  &:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: #a5a5a5;
+  }
+  &::-ms-input-placeholder { /* Microsoft Edge */
+    color: #a5a5a5;
+  }
+}
+
 
 
