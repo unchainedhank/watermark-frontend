@@ -1,45 +1,55 @@
-import { Http } from '@/utils/http';
+// apiService.ts
 
-export const postLogin = (data: Api.PostLogin['params']) => {
-  return Http.post<Api.PostLogin>('https://4024f85r48.picp.vip/user/login', data);
-  // return Http.post<Api.PostLogin>('/login', data);
-};
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
-export const getUserInfo = (params?: Api.GetUserInfo['params']) => {
-  return Http.get<Api.GetUserInfo>('/user/info', params);
-};
-export const postRegister =(data: KV | undefined) =>{
-  return Http.post('/register',data);
+const BASE_URL = 'https://api.example.com'; // 替换为你的API基本URL
+
+interface ApiResponse<T = any> {
+    data: T;
+    status: number;
+    statusText: string;
+    headers: any;
+    config: any;
+    request?: any;
 }
-export const postLogout = () => {
-  return Http.post<any>('/user/logout');
-};
-export const getArticleList = (params?: Api.getArticleList['params'], formData?: KV) => {
-  return Http.get<Api.getArticleList>('/article/list', { ...params, ...formData });
-};
 
-export const postDeleteArticle = (params: Api.postDeleteArticle['params']) => {
-  return Http.post<Api.postDeleteArticle>('/article/delete', params);
-};
+class ApiService {
+    private apiService: AxiosInstance;
 
-export const getTodoList = (params?: Api.getTodoList['params']) => {
-  return Http.get<Api.getTodoList>('/todo/list', params);
-};
+    constructor() {
+        this.apiService = axios.create({
+            baseURL: BASE_URL,
+            headers: {
+                'Content-Type': 'application/json',
+                // 其他自定义的请求头信息
+            },
+        });
+    }
 
-export const postChangeTodoStatus = (data: Api.postChangeTodoStatus['params']) => {
-  return Http.post<Api.postChangeTodoStatus>('/todo/changeStatus', data);
-};
+    public async fetchData<T>(endpoint: string, params = {}): Promise<T> {
+        try {
+            const response: AxiosResponse<ApiResponse<T>> = await this.apiService.get(endpoint, { params });
+            return response.data.data;
+        } catch (error) {
+            // 处理错误，例如打印错误信息、显示通知等
+            console.error('请求出错:', error);
+            throw error;
+        }
+    }
 
-export const postDeleteTodo = (params: Api.postDeleteTodo['params']) => {
-  return Http.post<Api.postDeleteTodo>('/todo/delete', params);
-};
+    public async postData<T>(endpoint: string, data = {}): Promise<T> {
+        try {
+            const response: AxiosResponse<ApiResponse<T>> = await this.apiService.post(endpoint, data);
+            return response.data.data;
+        } catch (error) {
+            // 处理错误，例如打印错误信息、显示通知等
+            console.error('请求出错:', error);
+            throw error;
+        }
+    }
 
-export const postUpdateTodo = (data: Api.postUpdateTodo['params']) => {
-  return Http.post<Api.postUpdateTodo>('/todo/update', data);
-};
+    // 可以根据需要添加其他请求方法，比如putData、deleteData等
+}
 
-export const postAddTodo = (data: Api.postAddTodo['params']) => {
-  return Http.post<Api.postAddTodo>('/todo/create', data);
-};
-
-
+const apiService = new ApiService();
+export default apiService;

@@ -35,7 +35,7 @@ const ExtractWaterMarkPage: React.FC = () => {
         try {
             setLoading(true);
             await axios.post(
-                "https://4024f85r48.picp.vip/watermark/extract",
+                "http://localhost:30098/watermark/extract",
                 config.data,
                 config
             ).then((res) => {
@@ -120,7 +120,7 @@ const ExtractWaterMarkPage: React.FC = () => {
                             </Upload>
                         </Form.Item>
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" style={{width: '100%'}}>
+                            <Button type="primary" htmlType="submit" style={{width: '40%'}}>
                                 提取暗水印
                             </Button>
                         </Form.Item>

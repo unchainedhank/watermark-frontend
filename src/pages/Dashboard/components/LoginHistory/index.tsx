@@ -15,9 +15,9 @@ const LoginHistory: React.FC<{}> = () => {
     const [loginHistoryData, setLoginHistoryData] = useState();
     const columns: ColumnsType<Model.LoginHistory> = [
         {
-            title: '昵称',
-            dataIndex: 'nickname',
-            key: 'nickname'
+            title: 'uid',
+            dataIndex: 'uid',
+            key: 'uid'
         },
         {
             title: '登录IP',
@@ -36,6 +36,7 @@ const LoginHistory: React.FC<{}> = () => {
 
 
     useEffect(() => {
+
         const fetchLoginData = async () => {
             let loginHistory: AxiosRequestConfig = {
                 data: {
@@ -46,10 +47,10 @@ const LoginHistory: React.FC<{}> = () => {
             // console.log("登录历史的info", userInfo);
             // console.log("登录历史的请求数据",loginHistory.data)
             return await axios.post(
-                "https://4024f85r48.picp.vip/logs",
+                "http://localhost:30098/logs",
                 loginHistory.data,loginHistory)
             // return await axios.get(
-            //     "https://4024f85r48.picp.vip/logs",
+            //     "http://localhost:30098/logs",
             //     loginHistory.data
             // )
         }
@@ -58,7 +59,7 @@ const LoginHistory: React.FC<{}> = () => {
             // console.log("获取登录历史", res);
             if (res.data.statusCode === '200') {
                 const adaptedData = res.data.logs.map((log:any) => ({
-                    nickname: log.userName,
+                    uid: log.userName,
                     loginIp: log.ip,
                     create_time: log.time,
                     key: log.logId.toString(), // 添加一个 key，以便 React 可以唯一识别每个项目

@@ -85,7 +85,7 @@ const AddWaterMarkPage: React.FC = () => {
             }
             try {
                 await axios.post(
-                    'https://4024f85r48.picp.vip/watermark/template/query',
+                    'http://localhost:30098/watermark/template/query',
                     templateConfig.data,
                     templateConfig).then(res => {
                     console.log(res);
@@ -200,14 +200,14 @@ const AddWaterMarkPage: React.FC = () => {
                     },
                     data: {
                         uid: userInfo.uid,
-                        targetFingerprint: [values.privateKey],
+                        targetFingerprint: 111,
                         file: values.file.file.originFileObj,
                     }
                 };
                 // formData.append('file', values.file.fileList[0]);
                 console.log(darkConfig.data);
                 await axios.post(
-                    "https://4024f85r48.picp.vip/watermark/embed/invisible",
+                    "http://localhost:30098/watermark/embed/invisible",
                     darkConfig.data,
                     darkConfig
                 ).then((response) => {
@@ -283,7 +283,7 @@ const AddWaterMarkPage: React.FC = () => {
                 console.log(lightConfig.data);
                 //插入loading
                 await axios.post(
-                    "https://4024f85r48.picp.vip/watermark/embed/visible",
+                    "http://localhost:30098/watermark/embed/visible",
                     lightConfig.data,
                     lightConfig
                 ).then(response => {
@@ -371,7 +371,7 @@ const AddWaterMarkPage: React.FC = () => {
                 console.log("bothConfig req");
                 //插入loading
                 await axios.post(
-                    "https://4024f85r48.picp.vip/watermark/embed/both",
+                    "http://localhost:30098/watermark/embed/both",
                     bothConfig.data,
                     bothConfig
                 ).then(response => {
@@ -516,7 +516,7 @@ const AddWaterMarkPage: React.FC = () => {
             console.log(newTemplateConfig.data);
 
             await axios.post(
-                'https://4024f85r48.picp.vip/watermark/template/insert',
+                'http://localhost:30098/watermark/template/insert',
                 newTemplateConfig.data,
                 newTemplateConfig
             ).then(res => {
@@ -585,7 +585,7 @@ const AddWaterMarkPage: React.FC = () => {
             };
             console.log("删除的请求", deleteConfig.data);
             await axios.post(
-                "https://4024f85r48.picp.vip/watermark/template/delete",
+                "http://localhost:30098/watermark/template/delete",
                 deleteConfig.data,
                 deleteConfig
             ).then(res => {
