@@ -216,11 +216,11 @@ const MenuList: Menu.MenuItemType[] = [
     icon: 'icon-user-permissions',
     // permission: (userInfo) => userInfo.roles.includes('admin'),
     children: [
-      {
-        path: '/user/center/index',
-        label: '个人中心',
-        icon: 'icon-example'
-      },
+      // {
+      //   path: '/user/center/index',
+      //   label: '个人中心',
+      //   icon: 'icon-example'
+      // },
       {
         path: '/user/center/update',
         label: '修改信息',

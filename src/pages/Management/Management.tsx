@@ -12,116 +12,215 @@ import {
     message,
     Pagination,
     Table,
-    Modal, Flex
+    Modal, Flex, Select, Tag
 } from 'antd';
 import {Link, useNavigate, useHref} from 'react-router-dom';
 import {Simulate} from "react-dom/test-utils";
-import axios from "axios";
+import axios, {AxiosRequestConfig} from "axios";
 import {GlobalContext} from "@/contexts/Global";
+import RelativeTime from "@/components/RelativeTime";
+
+const apiUrl = 'http://39.96.137.165:30099';
 
 interface Users {
     key: string;
-    userName: string;
+    uid: string;
+    username: string;
     department: string;
     create_time?: string;
     password?: string;
     email?: string;
-    phoneNumber?: string;
+    phone?: string;
     fingerPrint: string;
     role: string;
 }
+
 interface IFormState {
 
-    addUid: string;
-    // email: string;
-    // phone: string;
-    //username: string
-    // department: string;
-    addPassword: string;
-    addUserRole: string;
+    uid: string;
+    username: string;
+    department: string;
+    phone?: string;
+    email?: string;
+    password: string;
 }
-
-const initialData: Users[] = [
-    {
-        key: '1',
-        userName: 'John Doe',
-        department: 'IT',
-        fingerPrint: 'fingerprint1',
-        role: 'Admin',
-    },
-    {
-        key: '2',
-        userName: 'Jane Smith',
-        department: 'HR',
-        fingerPrint: 'fingerprint2',
-        role: 'User',
-    },
-    // Add more default users as needed
-];
 
 
 const Management: React.FC = () => {
-    const [dataSource, setDataSource] = useState<Users[]>(initialData);
-    const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
+    const [dataSource, setDataSource] = useState<Users[]>();
+    const [pagination, setPagination] = useState({current: 1, pageSize: 10});
     const [modalVisible, setModalVisible] = useState(false);
     const [form] = Form.useForm();
     const navigate = useNavigate();
+    const {userInfo, setUserInfo} = useContext(GlobalContext);
+
 
     useEffect(() => {
-        // Function to fetch data from an API endpoint using Axios
-        const fetchData = async () => {
-            try {
-                const response = await axios.get('YOUR_API_ENDPOINT'); // Replace with your API endpoint
-                const responseData: Users[] = response.data; // Assuming the response data is an array of Users
-                setDataSource(responseData);
-            } catch (error) {
-                console.error('Error fetching data:', error);
+        const fetchUserInfo = async (username: string, password: string) => {
+            let infoConfig: AxiosRequestConfig = {
+                data: {
+                    uid: username,
+                    password: password,
+                },
+                headers: {
+                    contentType: "application/json",
+                }
+            };
+            return await axios.post(
+                apiUrl + "/user/login",
+                infoConfig.data,
+                infoConfig
+            );
+        }
+
+        let tempUid = localStorage.getItem('uid');
+        let tempPswd = localStorage.getItem('password');
+        console.log("用户列表", userInfo);
+        // @ts-ignore
+        fetchUserInfo(tempUid, tempPswd).then((res) => {
+            if (res.data.statusCode == "200") {
+                let user = res.data.user;
+
+                const newUserInfo = {
+                    uid: user.uid,
+                    username: user.username,
+                    phone: user.phone,
+                    email: user.email,
+                    department: user.department,
+                    role: user.userRole,
+                }
+                setUserInfo(newUserInfo);
+            } else {
+                message.error(res.data.statusContent);
+                navigate("/login");
             }
+        })
+
+
+        const fetchData = async () => {
+
+
+            let userDataConfig: AxiosRequestConfig = {
+                data: {
+                    uid: userInfo.uid,
+                }
+            }
+            console.log("请求用户列表", userDataConfig.data);
+
+            return await axios.post(
+                apiUrl + '/admin/select/users',
+                userDataConfig.data, userDataConfig);
         };
 
-        // Call the fetchData function when component mounts
-        fetchData();
+        fetchData().then((res) => {
+            console.log("获取用户列表", res);
+            if (res.data.statusCode === '200') {
+                const userList: Users[] = res.data.user.map((temp: any) => {
+                    let role = '普通用户';
+                    if (temp.userRole === 'admin') {
+                        role = '管理员';
+                    }
+                    return {
+                        uid: temp.uid,
+                        username: temp.username,
+                        department: temp.department,
+                        password: temp.password,
+                        email: temp.email,
+                        phone: temp.phone,
+                        role: role,
+                        createdTime: temp.time,
+                    };
+
+                });
+                setDataSource(userList);
+            }
+        });
     }, []);
 
     // Columns for the Table
+    const departments = dataSource ? Array.from(new Set(dataSource.map(item => item.department))) : [];
     const columns = [
         {
-            title: 'User Name',
-            dataIndex: 'userName',
-            key: 'userName',
+            title: 'uid',
+            dataIndex: 'uid',
+            key: 'uid',
         },
         {
-            title: 'Department',
+            title: '用户名',
+            dataIndex: 'username',
+            key: 'username',
+        },
+        {
+            title: 'email',
+            dataIndex: 'email',
+            key: 'email',
+        },
+        {
+            title: '电话',
+            dataIndex: 'phone',
+            key: 'phone',
+        },
+        {
+            title: '密码',
+            dataIndex: 'password',
+            key: 'password',
+        },
+        {
+            title: '部门',
             dataIndex: 'department',
             key: 'department',
+            filters: departments.map(department => ({text: department, value: department})),
+            onFilter: (value: any, record: any) => record.department === value,
         },
         {
-            title: 'Role',
+            title: '创建时间',
+            dataIndex: 'createdTime',
+            key: 'createdTime',
+            sorter: (a: any, b: any) => new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime(),
+            render: (createdTime: string) => {
+                if (createdTime) {
+                    return <RelativeTime time={createdTime}/>;
+                } else {
+                    return null; // 如果时间戳为空，则不显示任何内容
+                }
+            }
+
+        },
+        {
+            title: '角色',
             dataIndex: 'role',
             key: 'role',
+            filters: [
+                {text: '管理员', value: '管理员'},
+                {text: '普通用户', value: '普通用户'},
+                // 添加其他角色筛选项...
+            ],
+            onFilter: (value: any, record: any) => record.role === value,
+            render: (role: string) => {
+                // 根据角色值渲染对应的标签
+                let color = '';
+                console.log(role);
+                if (role === '管理员') {
+                    color = 'geekblue';
+                } else {
+                    color = 'green';
+                }
+                return (
+                    <Tag color={color} key={role}>
+                        {role.toUpperCase()}
+                    </Tag>
+                );
+            },
         },
-        {
-            title: 'Action',
-            key: 'action',
-            render: (text: any, record: Users) => (
-                <Button onClick={() => handleEdit(record)}>Edit</Button>
-            ),
-        },
+        // {
+        //     title: 'Action',
+        //     key: 'action',
+        //     render: (text: any, record: Users) => (
+        //         <Button onClick={() => handleEdit(record)}>Edit</Button>
+        //     ),
+        // },
     ];
-
-    // Function to handle edit action
-    const handleEdit = (record: Users) => {
-        // Implement edit logic here, e.g., show a modal with form fields to edit user info
-        console.log('Edit user:', record);
-    };
-
-    // Function to handle pagination change
-    const handlePaginationChange = (page: number, pageSize?: number) => {
-        // Implement logic to fetch data for the new page
-        console.log('New page:', page);
-        setPagination({ current: page, pageSize: pageSize || 10 });
-    };
-    const { userInfo } = useContext(GlobalContext);
+// Function to handle pagination change
     const onFinish = async (values: any) => {
         // submit(values);
         console.log("原始表单信息：");
@@ -129,10 +228,10 @@ const Management: React.FC = () => {
         let registerConfig = {
             data: {
                 uid: userInfo.uid,
-                //username: values.uid,
-                addUid:values.addUid,
-                addPassword:values.password,
-                addUserRole:values.addUserRole,
+                addUid: values.uid,
+                addPassword: values.password,
+                addUserRole: values.addUserRole,
+
             },
             headers: {
                 'Content-Type': 'application/json',
@@ -141,7 +240,7 @@ const Management: React.FC = () => {
         console.log("发送请求信息");
         console.log(registerConfig.data)
         await axios.post(
-            "https://4024f85r48.picp.vip/admin/add/user",
+            apiUrl + "/admin/add/user",
             registerConfig.data,
             registerConfig
         ).then(response => {
@@ -149,6 +248,9 @@ const Management: React.FC = () => {
             if (response.data.statusCode == '200') {
                 //navigate('/Login');
                 message.success("添加成功");
+
+                form.resetFields();
+                setModalVisible(false);
             } else {
                 message.error("添加失败");
             }
@@ -159,16 +261,23 @@ const Management: React.FC = () => {
     const onFinishFailed = (values: any) => {
         message.error("注册失败");
     }
-
+    const formLayout = {
+        borderRadius: ' 10px',
+        // backgroundColor: '#eeeeee',
+        border: '2px solid #bfbfbf',
+        // margin: '0px 0px 20px 0px',
+        width: '330px',
+        marginLeft: '5%'
+    };
 
     return (
         <div>
 
             <Flex vertical={true} justify={"center"} gap={"large"}>
-                <Row justify="start" style={{ marginBottom: '10px' }}>
+                <Row justify="start" style={{marginBottom: '10px'}}>
                     <Col>
                         <Button type="primary" onClick={() => setModalVisible(true)}>
-                            Add User
+                            添加用户
                         </Button>
                     </Col>
                 </Row>
@@ -177,20 +286,11 @@ const Management: React.FC = () => {
                     columns={columns}
                     pagination={false} // Disable built-in pagination as we're using Ant Design's Pagination component
                 />
-                <Pagination
-                    current={pagination.current}
-                    pageSize={pagination.pageSize}
-                    total={100} // Replace 'total' with the actual total number of users
-                    onChange={handlePaginationChange}
-                    showSizeChanger={true}
-                    showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
-                    pageSizeOptions={['10', '20', '30']}
-                />
             </Flex>
 
 
             <Modal
-                title="Add/Edit User"
+                title="添加用户"
                 visible={modalVisible}
                 onCancel={() => setModalVisible(false)}
                 footer={null}
@@ -208,36 +308,36 @@ const Management: React.FC = () => {
                     onFinishFailed={onFinishFailed}
                     // Implement the form logic for adding/editing users
                 >
-                    {/* Form fields for user details */}
-                    {/* Example: */}
-                    {/*<Form.Item label="User Name">*/}
-                    {/*    <Input />*/}
-                    {/*</Form.Item>*/}
-                    {/*<Form.Item label="Department">*/}
-                    {/*    <Input />*/}
-                    {/*</Form.Item>*/}
+
+
                     <Form.Item
-                        name="addUid"
+                        name="uid"
                         label="uid"
                         rules={[{required: true, message: 'uid不能为空'},
-                           //{pattern: /^[a-zA-Z0-9_-]{4,16}$/, message: "'用户名应为4到16位（字母，数字，下划线）'"},
+                            {pattern: /^[a-zA-Z0-9_-]{4,16}$/, message: "'uid应为4到16位（字母，数字，下划线）'"},
                             // {validator: changeUsername}
                         ]}
                         //style={formLayout}
                     >
-                        <Input placeholder="请输入uid" bordered={false} />
+                        <Input placeholder="请输入用户名" bordered={false} style={formLayout}/>
                     </Form.Item>
                     <Form.Item
                         name="addUserRole"
-                        label={"用户角色"}
-                        rules={[{required: true, message: '请设置用户角色!'}]}
+                        label="角色"
+                        rules={[{required: true, message: '角色不能为空'},
+                            // {pattern: /^[a-zA-Z0-9_-]{4,16}$/, message: "'uid应为4到16位（字母，数字，下划线）'"},
+                            // {validator: changeUsername}
+                        ]}
                         //style={formLayout}
                     >
-                        <Input placeholder="请设置用户角色" bordered={false} />
+                        <Select options={[
+                            {value: 'normal', label: '普通用户'}
+                        ]}
+                                bordered={false} style={formLayout} placeholder={"请选择角色"}/>
                     </Form.Item>
                     <Form.Item
-                        name="addPassword"
-                        label="设置密码"
+                        name="password"
+                        label="密码"
                         rules={[{required: true, message: '请设置密码!'},
                             {type: "string", max: 18},
                             {type: "string", min: 8},
@@ -245,21 +345,47 @@ const Management: React.FC = () => {
                                 pattern: /^((?=.*\d)(?=.*[a-z])(?=.*[A-Z])|(?=.*\d)(?=.*[A-Z])(?=.*[_!@#$%^&*()?=\[\]])|(?=.*\d)(?=.*[a-z])(?=.*[_!@#$%^&*()?=\[\]])|(?=.*[A-Z])(?=.*[a-z])(?=.*[_!@#$%^&*()?=\[\]])).{8,18}$/,
                                 message: "数字、大写字母、小写字母、特殊字符至少3种"
                             },
+                            // {validator: changePassword,
+                            // message: "数字、大写字母、小写字母、特殊字符至少3种"}]}
                         ]}
-
+                        //style={formLayout}
                     >
                         <Input.Password
                             bordered={false}
                             type="password"
                             placeholder="请设置密码"
+                            style={formLayout}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        name="passwordcertificate"
+                        label="确认"
+                        rules={[{required: true, message: '请确认密码!'},
+                            ({getFieldValue}) => ({
+                                validator(_, value) {
+                                    if (!value || getFieldValue('password') === value) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('两次输入的密码不匹配'));
+                                },
+                            }),
+                            // {validator: changePassCtf}
+                        ]}
+                        //style={formLayout}
+                    >
+                        <Input.Password
+                            bordered={false}
+                            type="password"
+                            placeholder="确认密码"
+                            style={formLayout}
                         />
                     </Form.Item>
                     {/* Other form fields */}
                     {/* Submit button */}
                     <Form.Item
-                        wrapperCol={{offset:8}}
+                        wrapperCol={{offset: 8}}
                     >
-                        <Button type="primary" htmlType="submit" >
+                        <Button type="primary" htmlType="submit">
                             添加
                         </Button>
                     </Form.Item>
