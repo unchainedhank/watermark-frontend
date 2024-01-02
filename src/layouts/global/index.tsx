@@ -18,6 +18,7 @@ import './fixed-layout.less';
 import {useUpdateEffect} from 'ahooks';
 import Cache from "@/utils/cache";
 import {userInfo} from "os";
+const apiUrl = 'http://39.96.137.165:30099';
 
 const GlobalLayout: React.FC = () => {
     const [getUserInfoLoading, setGetUserInfoLoading] = useState(true);
@@ -48,8 +49,7 @@ const GlobalLayout: React.FC = () => {
                 }
             };
             return await axios.post(
-                "http://localhost:30098/user/login",
-                // "http://http://localhost:30098/user/login",
+                apiUrl+"/user/login",
                 infoConfig.data,
                 infoConfig
             );

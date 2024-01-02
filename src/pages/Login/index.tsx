@@ -3,7 +3,6 @@ import {Button, Checkbox, Col, ConfigProvider, Form, Input, Row, theme, Typograp
 import Cache from '@/utils/cache';
 import type {FlexProps} from "antd";
 import {validateToken} from '@/utils/jwt';
-import {postLogin} from '@/api/index_r';
 import {useRequest} from 'ahooks';
 import './index.less';
 import Config from '@/configs';
@@ -12,6 +11,7 @@ import UserInfo = Api.UserInfo;
 import {Http} from "@/utils/http";
 import axios, {AxiosRequestConfig} from "axios";
 import {GlobalContext} from "@/contexts/Global";
+const apiUrl = 'http://39.96.137.165:30099';
 
 interface IFormState {
     uid: string;
@@ -47,7 +47,7 @@ const LoginPage: React.FC = () => {
             }
         };
         axios.post(
-            'http://localhost:30098/user/login',
+            apiUrl + '/user/login',
             loginConfig.data,
             loginConfig
         ).then((res) => {

@@ -8,6 +8,7 @@ import {useContext, useEffect, useState} from "react";
 import axios, {AxiosRequestConfig} from "axios";
 import {GlobalContext} from "@/contexts/Global";
 import UserInfo = Api.UserInfo;
+const apiUrl = 'http://39.96.137.165:30099';
 
 
 
@@ -21,37 +22,6 @@ const DashboardPage: React.FC = () => {
         { name: '暗水印', value: 21 },
     ]);
     useEffect(() => {
-        // console.log("刷新", userInfo);
-        // if (userInfo && Object.keys(userInfo).length === 0) {
-        //
-        //     let tempUid = localStorage.getItem('uid');
-        //     let tempPswd = localStorage.getItem('password');
-        //     let loginConfig: AxiosRequestConfig = {
-        //         data: {
-        //             uid: tempUid,
-        //             password: tempPswd,
-        //         }
-        //     };
-        //     axios.post(
-        //         'http://localhost:30098/user/login',
-        //         loginConfig.data,
-        //         loginConfig
-        //     ).then((res) => {
-        //         console.log("登录返回值", res);
-        //         if (res.data.statusCode === '200') {
-        //             let info = res.data.user;
-        //             let temp: UserInfo = {
-        //                 uid: info.uid,
-        //                 username: info.username,
-        //                 phone: info.phone,
-        //                 email: info.email,
-        //                 department: info.department,
-        //                 role: info.userRole,
-        //             }
-        //             setUserInfo(temp);
-        //         }
-        //     });
-        // }
 
 
 
@@ -66,7 +36,7 @@ const DashboardPage: React.FC = () => {
                 }
             };
             return await axios.post(
-                "http://localhost:30098/watermark/ratio",
+                apiUrl+"/watermark/ratio",
                 ratioConfig.data
             );
         }

@@ -22,6 +22,8 @@ import {userInfo} from "os";
 import UserInfo = Api.UserInfo;
 import {GlobalContext} from "@/contexts/Global";
 
+const apiUrl = 'http://39.96.137.165:30099';
+
 const {Paragraph} = Typography;
 
 interface WatermarkConfig {
@@ -72,58 +74,53 @@ const AddWaterMarkPage: React.FC = () => {
         alpha = alpha / 100;
         return `rgba(${r},${g},${b},${alpha})`; // 构建 RGBA 格式字符串
     };
-    async function getTemplateData(uid: string) {
-        try {
-            console.log("获取模板数据")
-            let templateConfig: AxiosRequestConfig = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                data: {
-                    uid: uid, // 将用户的 uid 作为参数传递给请求
-                },
-            }
-            try {
-                await axios.post(
-                    'http://localhost:30098/watermark/template/query',
-                    templateConfig.data,
-                    templateConfig).then(res => {
-                    console.log(res);
-                    if (res.data.statusCode == 200) {
-                        let templateData = res.data.queryresult;
-                        const templateArray: TemplateType[] = [];
-                        for (let i = 0; i < templateData.length; i++) {
-                            const currentTemplateData = templateData[i]; // 获取当前模板数据对象
 
-                            let fontColorRgb = convertToRGBA(currentTemplateData.fontColor, currentTemplateData.alpha);
-                            const template: TemplateType = {
-                                id: currentTemplateData.templateId,
-                                name: currentTemplateData.name,
-                                content: currentTemplateData.content,
-                                fontSize: currentTemplateData.fontSize,
-                                frameSize: currentTemplateData.frameSize,
-                                rotate: currentTemplateData.angle,
-                                fontColor: fontColorRgb,
-                            };
-                            templateArray.push(template);
-                            console.log(i, template)
-                        }
-                        setTemplateOptions(templateArray);
-                    } else {
-                        message.error("获取模板失败，请检查服务器连接");
-                    }
-                });
-            } catch (e) {
-                message.error("获取模板失败，请检查服务器连接");
-            }
-        } catch (error) {
-            console.error('Error fetching template data:', error);
+    async function getTemplateData() {
+        console.log("获取模板数据")
+        let templateConfig: AxiosRequestConfig = {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: {
+                uid: userInfo.uid, // 将用户的 uid 作为参数传递给请求
+            },
         }
+
+        await axios.post(
+            apiUrl + '/watermark/template/query',
+            templateConfig.data,
+            templateConfig).then(res => {
+            console.log(res);
+            if (res.data.statusCode == 200) {
+                let templateData = res.data.queryresult;
+                const templateArray: TemplateType[] = [];
+                for (let i = 0; i < templateData.length; i++) {
+                    const currentTemplateData = templateData[i]; // 获取当前模板数据对象
+
+                    let fontColorRgb = convertToRGBA(currentTemplateData.fontColor, currentTemplateData.alpha);
+                    const template: TemplateType = {
+                        id: currentTemplateData.templateId,
+                        name: currentTemplateData.name,
+                        content: currentTemplateData.content,
+                        fontSize: currentTemplateData.fontSize,
+                        frameSize: currentTemplateData.frameSize,
+                        rotate: currentTemplateData.angle,
+                        fontColor: fontColorRgb,
+                    };
+                    templateArray.push(template);
+                    console.log(i, template)
+                }
+                setTemplateOptions(templateArray);
+            }
+        });
+
+
     }
 
-    useEffect(()=>{
-            getTemplateData(userInfo.uid);
-    },[])
+    useEffect(() => {
+        console.log("获取模板 userInfo", userInfo);
+        getTemplateData();
+    }, [])
 
     const handleTemplateChange = (value: number) => {
         const selectedTemplate = templateOptions.find((template: TemplateType) => template.id === value);
@@ -207,7 +204,7 @@ const AddWaterMarkPage: React.FC = () => {
                 // formData.append('file', values.file.fileList[0]);
                 console.log(darkConfig.data);
                 await axios.post(
-                    "http://localhost:30098/watermark/embed/invisible",
+                    apiUrl + "/watermark/embed/invisible",
                     darkConfig.data,
                     darkConfig
                 ).then((response) => {
@@ -244,8 +241,7 @@ const AddWaterMarkPage: React.FC = () => {
                     }
                 });
 
-            }
-            else if (watermarkTypeSelect == 'visible') {
+            } else if (watermarkTypeSelect == 'visible') {
                 console.log("明水印");
                 console.log(values);
                 let rgb: string = "(255,255,255)";
@@ -283,7 +279,7 @@ const AddWaterMarkPage: React.FC = () => {
                 console.log(lightConfig.data);
                 //插入loading
                 await axios.post(
-                    "http://localhost:30098/watermark/embed/visible",
+                    apiUrl + "/watermark/embed/visible",
                     lightConfig.data,
                     lightConfig
                 ).then(response => {
@@ -306,6 +302,8 @@ const AddWaterMarkPage: React.FC = () => {
                             blob = new Blob([arrayBuffer], {type: 'application/pdf'});
                         } else if (values.file.file.type == 'image/png') {
                             blob = new Blob([arrayBuffer], {type: 'image/png'});
+                        } else if (values.file.file.type == 'image/jpg') {
+                            blob = new Blob([arrayBuffer], {type: 'image/jpg'});
                         }
                         // 将 ArrayBuffer 转换为 Blob
                         // 创建一个 URL 对象，指向该 Blob 对象
@@ -315,7 +313,7 @@ const AddWaterMarkPage: React.FC = () => {
                         const link = document.createElement('a');
 
                         link.href = url;
-                        link.download = '数字符号.pdf'; // 设置文件名
+                        link.download = response.data.fileName // 设置文件名
                         document.body.appendChild(link);
                         link.click();
 
@@ -328,8 +326,7 @@ const AddWaterMarkPage: React.FC = () => {
                     //  结束loading
                 });
 
-            }
-            else {
+            } else {
                 console.log("双重水印");
                 console.log(values);
                 let rgb: string = "(255,255,255)";
@@ -371,7 +368,7 @@ const AddWaterMarkPage: React.FC = () => {
                 console.log("bothConfig req");
                 //插入loading
                 await axios.post(
-                    "http://localhost:30098/watermark/embed/both",
+                    apiUrl + "/watermark/embed/both",
                     bothConfig.data,
                     bothConfig
                 ).then(response => {
@@ -392,7 +389,7 @@ const AddWaterMarkPage: React.FC = () => {
                             blob = new Blob([arrayBuffer], {type: 'application/pdf'});
                         } else if (values.file.file.type == 'image/png') {
                             blob = new Blob([arrayBuffer], {type: 'image/png'});
-                        }else if (values.file.file.type == 'image/jpeg') {
+                        } else if (values.file.file.type == 'image/jpeg') {
                             blob = new Blob([arrayBuffer], {type: 'image/jpeg'});
                         }
 
@@ -516,7 +513,7 @@ const AddWaterMarkPage: React.FC = () => {
             console.log(newTemplateConfig.data);
 
             await axios.post(
-                'http://localhost:30098/watermark/template/insert',
+                apiUrl + '/watermark/template/insert',
                 newTemplateConfig.data,
                 newTemplateConfig
             ).then(res => {
@@ -525,7 +522,7 @@ const AddWaterMarkPage: React.FC = () => {
                 if (res.data.statusCode == "200") {
                     message.success("模版添加成功");
                     // @ts-ignore
-                    getTemplateData(userInfo.uid);
+                    getTemplateData();
                 } else {
                     message.error("模版添加错误");
                 }
@@ -585,7 +582,7 @@ const AddWaterMarkPage: React.FC = () => {
             };
             console.log("删除的请求", deleteConfig.data);
             await axios.post(
-                "http://localhost:30098/watermark/template/delete",
+                apiUrl + "/watermark/template/delete",
                 deleteConfig.data,
                 deleteConfig
             ).then(res => {
@@ -596,7 +593,7 @@ const AddWaterMarkPage: React.FC = () => {
                     message.error("模板删除失败");
                 }
                 // @ts-ignore
-                getTemplateData(userInfo.uid);
+                getTemplateData();
             });
         } catch (error) {
             message.error("模板删除失败");
@@ -669,23 +666,24 @@ const AddWaterMarkPage: React.FC = () => {
                                 <Select onChange={handleTemplateChange} placeholder="选择模板"
                                 >
                                     {templateOptions.length > 0 ? (
-                                            templateOptions.map((template) => (
-                                                <Select.Option key={template.id} value={template.id}>
-                                                    <span>{template.name}</span>
-                                                    <span style={{float: "right"}}>
+                                        templateOptions.map((template) => (
+                                            <Select.Option key={template.id} value={template.id}>
+                                                <span>{template.name}</span>
+                                                <span style={{float: "right"}}>
                                                 <DeleteOutlined
                                                     onClick={() => {
-                                                        deleteOption(userInfo.uid, template.id);
+                                                        // @ts-ignore
+                                                        deleteOption(localStorage.getItem('uid'), template.id);
                                                     }}
                                                 />
                                               </span>
-                                                </Select.Option>
-                                            ))
-                                        ) : (
-                                            <Select.Option value={null} disabled>
-                                                加载中
                                             </Select.Option>
-                                        )}
+                                        ))
+                                    ) : (
+                                        <Select.Option value={null} disabled>
+                                            加载中
+                                        </Select.Option>
+                                    )}
                                 </Select>
                             </Form.Item>
                             <Form.Item name="content" label="自定义水印内容">

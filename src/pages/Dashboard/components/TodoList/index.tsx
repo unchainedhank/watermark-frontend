@@ -11,6 +11,7 @@ import React, {useContext, useEffect, useState} from "react";
 import axios, {AxiosResponse} from "axios";
 import {AxiosRequestConfig} from "axios/index";
 import {GlobalContext} from "@/contexts/Global";
+const apiUrl = 'http://39.96.137.165:30099';
 
 type TodoItem = Model.TodoList;
 
@@ -109,7 +110,7 @@ const TodoList: React.FC = () => {
             console.log("获取操作历史记录请求", opHistory.data);
 
             return await axios.post(
-                "http://localhost:30098/logs",
+                apiUrl+"/logs",
                 opHistory.data,
                 opHistory
             )
@@ -132,7 +133,7 @@ const TodoList: React.FC = () => {
                         type: t1.type,
                         filename: t1.filename,
                         filesize: formattedFileSize,
-                        url: 'http://localhost:30098' + log.url.uri,
+                        url: apiUrl + log.url.uri,
 
                     }
 

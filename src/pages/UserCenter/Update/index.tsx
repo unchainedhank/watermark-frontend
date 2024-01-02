@@ -4,6 +4,7 @@ import React, {useContext} from "react";
 import axios from "axios";
 import {GlobalContext} from "@/contexts/Global";
 import {userInfo} from "os";
+const apiUrl = 'http://39.96.137.165:30099';
 
 const UserCenterUpdatePage: React.FC = () => {
 
@@ -35,7 +36,7 @@ const UserCenterUpdatePage: React.FC = () => {
     console.log("发送请求信息");
     console.log(updateConfig.data)
     await axios.post(
-        "http://localhost:30098/userinfo/fill",
+        apiUrl+"/userinfo/fill",
         updateConfig.data,
         updateConfig
     ).then(response => {
@@ -130,7 +131,7 @@ const UserCenterUpdatePage: React.FC = () => {
 
         <Form.Item
             name="password"
-            label="设置密码"
+            label="密码"
             rules={[{required: true, message: '请设置密码!'},
               {type: "string", max: 18},
               {type: "string", min: 8},
@@ -152,7 +153,7 @@ const UserCenterUpdatePage: React.FC = () => {
         </Form.Item>
         <Form.Item
             name="passwordcertificate"
-            label="确认密码"
+            label="确认"
             rules={[{required: true, message: '请确认密码!'},
               ({getFieldValue}) => ({
                 validator(_, value) {

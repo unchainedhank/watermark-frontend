@@ -20,6 +20,8 @@ import axios, {AxiosRequestConfig} from "axios";
 import {GlobalContext} from "@/contexts/Global";
 import RelativeTime from "@/components/RelativeTime";
 
+const apiUrl = 'http://39.96.137.165:30099';
+
 interface Users {
     key: string;
     uid: string;
@@ -65,8 +67,7 @@ const Management: React.FC = () => {
                 }
             };
             return await axios.post(
-                "http://localhost:30098/user/login",
-                // "http://http://localhost:30098/user/login",
+                apiUrl + "/user/login",
                 infoConfig.data,
                 infoConfig
             );
@@ -75,31 +76,28 @@ const Management: React.FC = () => {
         let tempUid = localStorage.getItem('uid');
         let tempPswd = localStorage.getItem('password');
         console.log("用户列表", userInfo);
-        if (userInfo==undefined || Object.keys(userInfo).length === 0) {
-            // @ts-ignore
-            fetchUserInfo(tempUid, tempPswd).then((res) => {
-                if (res.data.statusCode == "200") {
-                    let user = res.data.user;
+        // @ts-ignore
+        fetchUserInfo(tempUid, tempPswd).then((res) => {
+            if (res.data.statusCode == "200") {
+                let user = res.data.user;
 
-                    const newUserInfo = {
-                        uid: user.uid,
-                        username: user.username,
-                        phone: user.phone,
-                        email: user.email,
-                        department: user.department,
-                        role: user.userRole,
-                    }
-                    setUserInfo(newUserInfo);
-                } else {
-                    message.error(res.data.statusContent);
-                    navigate("/login");
+                const newUserInfo = {
+                    uid: user.uid,
+                    username: user.username,
+                    phone: user.phone,
+                    email: user.email,
+                    department: user.department,
+                    role: user.userRole,
                 }
-            })
+                setUserInfo(newUserInfo);
+            } else {
+                message.error(res.data.statusContent);
+                navigate("/login");
+            }
+        })
 
-        }
 
         const fetchData = async () => {
-
 
 
             let userDataConfig: AxiosRequestConfig = {
@@ -110,8 +108,8 @@ const Management: React.FC = () => {
             console.log("请求用户列表", userDataConfig.data);
 
             return await axios.post(
-                'http://localhost:30098/admin/select/users',
-                userDataConfig.data,userDataConfig);
+                apiUrl + '/admin/select/users',
+                userDataConfig.data, userDataConfig);
         };
 
         fetchData().then((res) => {
@@ -171,7 +169,7 @@ const Management: React.FC = () => {
             title: '部门',
             dataIndex: 'department',
             key: 'department',
-            filters: departments.map(department => ({ text: department, value: department })),
+            filters: departments.map(department => ({text: department, value: department})),
             onFilter: (value: any, record: any) => record.department === value,
         },
         {
@@ -181,7 +179,7 @@ const Management: React.FC = () => {
             sorter: (a: any, b: any) => new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime(),
             render: (createdTime: string) => {
                 if (createdTime) {
-                    return <RelativeTime time={createdTime} />;
+                    return <RelativeTime time={createdTime}/>;
                 } else {
                     return null; // 如果时间戳为空，则不显示任何内容
                 }
@@ -193,8 +191,8 @@ const Management: React.FC = () => {
             dataIndex: 'role',
             key: 'role',
             filters: [
-                { text: '管理员', value: '管理员' },
-                { text: '普通用户', value: '普通用户' },
+                {text: '管理员', value: '管理员'},
+                {text: '普通用户', value: '普通用户'},
                 // 添加其他角色筛选项...
             ],
             onFilter: (value: any, record: any) => record.role === value,
@@ -242,7 +240,7 @@ const Management: React.FC = () => {
         console.log("发送请求信息");
         console.log(registerConfig.data)
         await axios.post(
-            "http://localhost:30098/admin/add/user",
+            apiUrl + "/admin/add/user",
             registerConfig.data,
             registerConfig
         ).then(response => {
@@ -267,8 +265,9 @@ const Management: React.FC = () => {
         borderRadius: ' 10px',
         // backgroundColor: '#eeeeee',
         border: '2px solid #bfbfbf',
-        margin: '0px 0px 20px 0px',
+        // margin: '0px 0px 20px 0px',
         width: '330px',
+        marginLeft: '5%'
     };
 
     return (
@@ -287,20 +286,11 @@ const Management: React.FC = () => {
                     columns={columns}
                     pagination={false} // Disable built-in pagination as we're using Ant Design's Pagination component
                 />
-                {/*<Pagination*/}
-                {/*    current={pagination.current}*/}
-                {/*    pageSize={pagination.pageSize}*/}
-                {/*    total={100} // Replace 'total' with the actual total number of users*/}
-                {/*    onChange={handlePaginationChange}*/}
-                {/*    showSizeChanger={true}*/}
-                {/*    showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}*/}
-                {/*    pageSizeOptions={['10', '20', '30']}*/}
-                {/*/>*/}
             </Flex>
 
 
             <Modal
-                title="Add/Edit User"
+                title="添加用户"
                 visible={modalVisible}
                 onCancel={() => setModalVisible(false)}
                 footer={null}
@@ -341,47 +331,13 @@ const Management: React.FC = () => {
                         //style={formLayout}
                     >
                         <Select options={[
-                            {value:'normal', label: '普通用户'}
+                            {value: 'normal', label: '普通用户'}
                         ]}
-                            bordered={false} style={formLayout} placeholder={"请选择角色"}/>
+                                bordered={false} style={formLayout} placeholder={"请选择角色"}/>
                     </Form.Item>
-                    {/*<Form.Item*/}
-                    {/*    name="username"*/}
-                    {/*    label="用户名"*/}
-                    {/*    rules={[*/}
-                    {/*        {pattern: /^[a-zA-Z0-9_-]{4,16}$/, message: "'用户名应为4到16位（字母，数字，下划线）'"},*/}
-                    {/*        // {validator: changeUsername}*/}
-                    {/*    ]}*/}
-                    {/*    //style={formLayout}*/}
-                    {/*>*/}
-                    {/*    <Input placeholder="请输入用户名" bordered={false} style={formLayout}/>*/}
-                    {/*</Form.Item>*/}
-
-                    {/*<Form.Item*/}
-                    {/*    name="department"*/}
-                    {/*    label={"设置部门"}*/}
-                    {/*    rules={[{required: true, message: '请设置部门!'}]}*/}
-                    {/*    //style={formLayout}*/}
-                    {/*>*/}
-                    {/*    <Input placeholder="请设置部门" bordered={false} style={formLayout}/>*/}
-                    {/*</Form.Item>*/}
-                    {/*<Form.Item*/}
-                    {/*    name="phone"*/}
-                    {/*    label={"设置手机号"}*/}
-                    {/*    // rules={[{required: true, message: '请设置部门!'}]}*/}
-                    {/*>*/}
-                    {/*    <Input placeholder="请设置手机号" bordered={false} style={formLayout}/>*/}
-                    {/*</Form.Item>*/}
-                    {/*<Form.Item*/}
-                    {/*    name="email"*/}
-                    {/*    label={"设置邮箱"}*/}
-                    {/*    rules={[{type:'email', message: '请输入正确的邮箱!'}]}*/}
-                    {/*>*/}
-                    {/*    <Input placeholder="请设置邮箱" bordered={false} style={formLayout}/>*/}
-                    {/*</Form.Item>*/}
                     <Form.Item
                         name="password"
-                        label="设置密码"
+                        label="密码"
                         rules={[{required: true, message: '请设置密码!'},
                             {type: "string", max: 18},
                             {type: "string", min: 8},
@@ -403,7 +359,7 @@ const Management: React.FC = () => {
                     </Form.Item>
                     <Form.Item
                         name="passwordcertificate"
-                        label="确认密码"
+                        label="确认"
                         rules={[{required: true, message: '请确认密码!'},
                             ({getFieldValue}) => ({
                                 validator(_, value) {

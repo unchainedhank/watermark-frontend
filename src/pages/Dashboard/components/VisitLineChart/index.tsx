@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 import axios, {AxiosRequestConfig} from "axios";
 import {GlobalContext} from "@/contexts/Global";
+const apiUrl = 'http://39.96.137.165:30099';
 
 interface useStaticMap {
     [key: string]: number;
@@ -42,7 +43,7 @@ const VisitLineChart: React.FC = () => {
                 }
             };
             return await axios.post(
-                "http://localhost:30098/watermark/count",
+                apiUrl+"/watermark/count",
                 useConfig.data
             );
         }

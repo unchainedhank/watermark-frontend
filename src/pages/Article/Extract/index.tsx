@@ -10,6 +10,7 @@ import {
 import React, {useState} from 'react';
 import {UploadOutlined} from '@ant-design/icons';
 import axios, {AxiosRequestConfig} from "axios";
+const apiUrl = 'http://39.96.137.165:30099';
 
 const ExtractWaterMarkPage: React.FC = () => {
 
@@ -35,12 +36,13 @@ const ExtractWaterMarkPage: React.FC = () => {
         try {
             setLoading(true);
             await axios.post(
-                "http://localhost:30098/watermark/extract",
+                apiUrl+"/watermark/extract",
                 config.data,
                 config
             ).then((res) => {
+                console.log(res);
                 if (res.data) {
-                    setImageSrc(res.data.uri);
+                    setImageSrc(apiUrl+res.data.uri);
                 } else {
                     setLoading(false);
                     message.error("提取水印失败");
@@ -120,7 +122,7 @@ const ExtractWaterMarkPage: React.FC = () => {
                             </Upload>
                         </Form.Item>
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" style={{width: '40%'}}>
+                            <Button type="primary" htmlType="submit" style={{width: '100%'}}>
                                 提取暗水印
                             </Button>
                         </Form.Item>

@@ -8,6 +8,7 @@ import {Link} from 'react-router-dom';
 import {useContext, useEffect, useState} from "react";
 import {GlobalContext} from "@/contexts/Global";
 import axios, {AxiosRequestConfig} from "axios";
+const apiUrl = 'http://39.96.137.165:30099';
 
 const LoginHistory: React.FC<{}> = () => {
 
@@ -47,10 +48,10 @@ const LoginHistory: React.FC<{}> = () => {
             // console.log("登录历史的info", userInfo);
             // console.log("登录历史的请求数据",loginHistory.data)
             return await axios.post(
-                "http://localhost:30098/logs",
+                apiUrl+"/logs",
                 loginHistory.data,loginHistory)
             // return await axios.get(
-            //     "http://localhost:30098/logs",
+            //     apiUrl+"/logs",
             //     loginHistory.data
             // )
         }
