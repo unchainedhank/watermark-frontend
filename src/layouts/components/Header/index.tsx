@@ -13,7 +13,7 @@ import avatarImage from '../../../assets/images/avatar.png';
 import './index.less';
 import Iconfont from '@/components/Iconfont';
 import Cache from '@/utils/cache';
-import {postLogout} from '@/api';
+import {postLogout} from '@/api/index_r';
 import {MenuContext} from '@/contexts/Menu';
 import {useNavigate} from 'react-router-dom';
 import {
@@ -62,15 +62,18 @@ const Header: React.FC = () => {
             );
         };
         const items: MenuProps['items'] = [
-            {
-                label: <a>个人中心</a>,
-                icon: <UserOutlined/>,
-                key: 'userCenter'
-            },
+            // {
+            //     label: <a>个人中心</a>,
+            //     icon: <UserOutlined/>,
+            //     key: 'userCenter'
+            // },
             {
                 label: <a>修改资料</a>,
                 key: 'update',
-                icon: <EditOutlined/>
+                icon: <EditOutlined/>,
+                onClick: ()=>{
+                    navigate('user/center/update');
+                }
             },
             {
                 type: 'divider'

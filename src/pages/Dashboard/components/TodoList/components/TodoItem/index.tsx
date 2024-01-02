@@ -5,7 +5,7 @@ import { Checkbox, CheckboxProps, Space, Tooltip, Typography } from 'antd';
 import React from 'react';
 import { useState } from 'react';
 import './index.less';
-import { postChangeTodoStatus, postDeleteTodo, postUpdateTodo } from '@/api';
+import { postChangeTodoStatus, postDeleteTodo, postUpdateTodo } from '@/api/index_r';
 import { noop } from '@/utils/util';
 import NanoLoading from '@/components/Loading/NanoLoading';
 import useManualRequest from '@/hooks/useManualRequest';

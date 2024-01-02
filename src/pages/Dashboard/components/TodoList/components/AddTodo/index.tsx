@@ -1,4 +1,4 @@
-import { postAddTodo } from '@/api';
+import { postAddTodo } from '@/api/index_r';
 import useManualRequest from '@/hooks/useManualRequest';
 import { EnterOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';

@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import { Image, Button, Form, Popconfirm, Space, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { getArticleList, postDeleteArticle } from '@/api';
+import { getArticleList, postDeleteArticle } from '@/api/index_r';
 import { DeleteOutlined, EditOutlined, PlusOutlined, UndoOutlined } from '@ant-design/icons';
 import useAntdTableRequest from '@/hooks/useAntdTableRequest';
 import { useRequest } from 'ahooks';

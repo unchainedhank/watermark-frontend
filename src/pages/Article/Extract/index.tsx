@@ -10,6 +10,7 @@ import {
 import React, {useState} from 'react';
 import {UploadOutlined} from '@ant-design/icons';
 import axios, {AxiosRequestConfig} from "axios";
+const apiUrl = 'http://39.96.137.165:30099';
 
 const ExtractWaterMarkPage: React.FC = () => {
 
@@ -35,12 +36,13 @@ const ExtractWaterMarkPage: React.FC = () => {
         try {
             setLoading(true);
             await axios.post(
-                "https://4024f85r48.picp.vip/watermark/extract",
+                apiUrl+"/watermark/extract",
                 config.data,
                 config
             ).then((res) => {
+                console.log(res);
                 if (res.data) {
-                    setImageSrc(res.data.uri);
+                    setImageSrc(apiUrl+res.data.uri);
                 } else {
                     setLoading(false);
                     message.error("提取水印失败");

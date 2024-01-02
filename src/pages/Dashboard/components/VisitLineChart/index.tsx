@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 import axios, {AxiosRequestConfig} from "axios";
 import {GlobalContext} from "@/contexts/Global";
+const apiUrl = 'http://39.96.137.165:30099';
 
 interface useStaticMap {
     [key: string]: number;
@@ -34,12 +35,15 @@ const VisitLineChart: React.FC = () => {
     useEffect(() => {
         const fetchUseData = async () => {
             let useConfig: AxiosRequestConfig = {
+                headers: {
+                    'Content-Type': 'application/json', // 显式设置请求头部为 JSON
+                },
                 data: {
                     uid: userInfo.uid,
                 }
             };
-            return await axios.get(
-                "https://4024f85r48.picp.vip/watermark/count",
+            return await axios.post(
+                apiUrl+"/watermark/count",
                 useConfig.data
             );
         }

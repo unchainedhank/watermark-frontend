@@ -1,47 +1,63 @@
 import {Button, Form, Input, message} from "antd";
-import React from "react";
+import React, {useContext} from "react";
 //import axios from "axios/index";
 import axios from "axios";
-const onFinishFailed = (values: any) => {
-  console.log('falied:', values)
-}
+import {GlobalContext} from "@/contexts/Global";
+import {userInfo} from "os";
+const apiUrl = 'http://39.96.137.165:30099';
+
+const UserCenterUpdatePage: React.FC = () => {
+
+  const {userInfo, setUserInfo} = useContext(GlobalContext);
+
+  const onFinishFailed = (values: any) => {
+    message.error("修改信息失败");
+  }
+
+  const [form] = Form.useForm();
 //提交表单
-const onFinish = async (values: any) => {
-  // submit(values);
-  console.log("原始表单信息：");
-  console.log(values);
-  let updateConfig = {
-    data: {
-      phone: values.phone,
-      email: values.email,
-      department: values.department,
-    },
+  const onFinish = async (values: any) => {
+    // submit(values);
+    console.log("原始表单信息：");
+    console.log(values);
+    let updateConfig = {
+      data: {
+        uid: userInfo.uid,
+        phone: values.phone,
+        email: values.email,
+        department: values.department,
+        password: values.password,
+
+  },
     headers: {
       'Content-Type': 'application/json',
     }
   }
-  console.log("发送请求信息");
-  console.log(updateConfig.data)
-  await axios.post(
-      "https://4024f85r48.picp.vip/user/register",
-      updateConfig.data,
-      updateConfig
-  ).then(response => {
-    console.log(response);
-    if (response.data.statusCode == '200') {
-      message.success("信息提交成功");
-    } else {
-      message.error("信息提交失败");
-    }
-  });
-}
-const UserCenterUpdatePage: React.FC = () => {
+    console.log("发送请求信息");
+    console.log(updateConfig.data)
+    await axios.post(
+        apiUrl+"/userinfo/fill",
+        updateConfig.data,
+        updateConfig
+    ).then(response => {
+      console.log(response);
+      if (response.data.statusCode == '200') {
+        form.resetFields();
+        message.success("信息修改成功");
+      } else {
+        message.error("信息提交失败");
+      }
+    });
+  }
+
 
 
   interface IFormState {
     email: string;
     phone: string;
     department: string;
+    password: string;
+    confirmPassword: string;
   }
   const initialValues: Partial<IFormState> = {
     email: '',
@@ -76,7 +92,7 @@ const UserCenterUpdatePage: React.FC = () => {
             //backgroundColor:'#ffffff',
             padding:'20px',
             maxWidth:350,
-            borderRadius: ' 10px',
+            // borderRadius: ' 10px',
           }}
           autoComplete="off"
           name="update-form"
@@ -84,7 +100,7 @@ const UserCenterUpdatePage: React.FC = () => {
           size="large"
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
-
+          form={form}
 
       >
 
@@ -112,6 +128,53 @@ const UserCenterUpdatePage: React.FC = () => {
         >
           <Input placeholder="请设置部门" bordered={false} style={formLayout}/>
         </Form.Item>
+
+        <Form.Item
+            name="password"
+            label="密码"
+            rules={[{required: true, message: '请设置密码!'},
+              {type: "string", max: 18},
+              {type: "string", min: 8},
+              {
+                pattern: /^((?=.*\d)(?=.*[a-z])(?=.*[A-Z])|(?=.*\d)(?=.*[A-Z])(?=.*[_!@#$%^&*()?=\[\]])|(?=.*\d)(?=.*[a-z])(?=.*[_!@#$%^&*()?=\[\]])|(?=.*[A-Z])(?=.*[a-z])(?=.*[_!@#$%^&*()?=\[\]])).{8,18}$/,
+                message: "数字、大写字母、小写字母、特殊字符至少3种"
+              },
+              // {validator: changePassword,
+              // message: "数字、大写字母、小写字母、特殊字符至少3种"}]}
+            ]}
+            //style={formLayout}
+        >
+          <Input.Password
+              bordered={false}
+              type="password"
+              placeholder="请设置密码"
+              style={formLayout}
+          />
+        </Form.Item>
+        <Form.Item
+            name="passwordcertificate"
+            label="确认"
+            rules={[{required: true, message: '请确认密码!'},
+              ({getFieldValue}) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('两次输入的密码不匹配'));
+                },
+              }),
+              // {validator: changePassCtf}
+            ]}
+            //style={formLayout}
+        >
+          <Input.Password
+              bordered={false}
+              type="password"
+              placeholder="确认密码"
+              style={formLayout}
+          />
+        </Form.Item>
+
 
         <Form.Item>
           <Button type="primary" htmlType="submit" block
