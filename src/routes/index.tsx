@@ -12,13 +12,14 @@ import { AddWatermarkPage } from '@/pages/Article';
 import { ExtractWatermarkPage } from '@/pages/Article';
 
 import { iframeUrlPrefix } from '@/utils/iframe';
+import Management from "@page/Management/Management";
 
 // const ArticleIndexPage = lazy(() => import('@/pages/Article/Index/index'));
 const LoginPage = lazy(() => import('@/pages/Login'));
 const DashboardPage = lazy(() => import('@/pages/Dashboard'));
 const IframePage = lazy(() => import('@/pages/Iframe'));
 const RegisterPage = lazy(() => import('@/pages/Register/Register'));
-const ManagementPage = lazy(() => import('@/pages/Management/Management'));
+// const ManagementPage = lazy(() => import('@/pages/Management/Management'));
 
 const Suspense: React.FC<React.PropsWithChildren> = ({ children }) => (
   <React.Suspense fallback={<PageLoading />}>{children}</React.Suspense>
@@ -70,7 +71,7 @@ export function routeRules() {
         },
         {
           path: '/management',
-          element: <ManagementPage />
+          element: <Management />
         },
 
         {
