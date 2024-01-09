@@ -113,7 +113,7 @@ export default function register(this: IFormState) {
         border: '2px solid #222222',
         margin: '0px 0px 20px 0px',
         width: '330px',
-        color: '#ffffff',
+        // color: '#ffffff',
         // background:'#c17500'
         // color: '#5a5a5a', // 设置文字颜色为黑色
     };
