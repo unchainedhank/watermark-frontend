@@ -325,6 +325,8 @@ const AddWaterMarkPage: React.FC = () => {
                             blob = new Blob([arrayBuffer], {type: 'image/png'});
                         } else if (values.file.file.type == 'image/jpg') {
                             blob = new Blob([arrayBuffer], {type: 'image/jpg'});
+                        }else if (values.file.file.type == 'image/jpeg') {
+                            blob = new Blob([arrayBuffer], {type: 'image/jpeg'});
                         }
                         // 将 ArrayBuffer 转换为 Blob
                         // 创建一个 URL 对象，指向该 Blob 对象
@@ -414,6 +416,8 @@ const AddWaterMarkPage: React.FC = () => {
                             blob = new Blob([arrayBuffer], {type: 'image/png'});
                         } else if (values.file.file.type == 'image/jpeg') {
                             blob = new Blob([arrayBuffer], {type: 'image/jpeg'});
+                        } else if (values.file.file.type == 'image/jpg') {
+                            blob = new Blob([arrayBuffer], {type: 'image/jpg'});
                         }
 
 
