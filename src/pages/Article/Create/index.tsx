@@ -177,6 +177,22 @@ const AddWaterMarkPage: React.FC = () => {
     };
 
     const [loading, setLoading] = useState(false);
+    function extractRgba(colorObj:any): string {
+        const { r, g, b, a } = colorObj.metaColor;
+        return `rgba(${r}, ${g}, ${b}, ${a})`;
+    }
+    function extractRgbAndAlpha(rgbaString: string): { rgb: string, a: number } {
+        const regex = /rgba\((\d+), (\d+), (\d+), (\d*\.?\d+)\)/;
+        const match = rgbaString.match(regex);
+
+        if (match) {
+            const [_, r, g, b, a] = match;
+            const rgb = `rgb(${r}, ${g}, ${b})`;
+            return { rgb, a: parseFloat(a) };
+        }
+
+        throw new Error("Invalid RGBA string");
+    }
 
     const onFinish = async (values: any) => {
 
@@ -188,6 +204,7 @@ const AddWaterMarkPage: React.FC = () => {
         // }
 
         try {
+
             setLoading(true);
             if (watermarkTypeSelect == 'invisible') {
                 console.log("暗水印");
@@ -243,7 +260,7 @@ const AddWaterMarkPage: React.FC = () => {
 
             } else if (watermarkTypeSelect == 'visible') {
                 console.log("明水印");
-                console.log(values);
+                console.log(values.fontColor);
                 let rgb: string = "(255,255,255)";
                 let alpha: number = 1.0;
 
@@ -256,8 +273,12 @@ const AddWaterMarkPage: React.FC = () => {
                         alpha = a ? parseFloat(a) : 1.0;
                     }
                 } else {
-                    rgb = values.fontColor.fontColor;
-                    alpha = values.fontColor.alpha;
+                    let r = values.fontColor.metaColor.r.toFixed(1);
+                    let g = values.fontColor.metaColor.g.toFixed(1);
+                    let b = values.fontColor.metaColor.b.toFixed(1);
+                    let a = values.fontColor.metaColor.a ? values.fontColor.metaColor.a.toFixed(1) : 1.0;
+                    rgb = `(${r},${g},${b})`;
+                    alpha = a;
                 }
                 let lightConfig: AxiosRequestConfig = {
                     headers: {
@@ -331,22 +352,24 @@ const AddWaterMarkPage: React.FC = () => {
                 console.log(values);
                 let rgb: string = "(255,255,255)";
                 let alpha: number = 1.0;
-                let rgbaValue: string = "";
 
-                if (typeof values.fontColor != 'string') {
-                    let metaColor = values.fontColor.metaColor;
-                    rgbaValue = hsvToRgb(metaColor.originalInput.h, metaColor.originalInput.s, metaColor.originalInput.v, metaColor.roundA);
+                if (typeof values.fontColor === 'string') {
+                    const regex = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/;
+                    const matches = values.fontColor.match(regex);
+                    if (matches) {
+                        const [, r, g, b, a] = matches;
+                        rgb = `(${r},${g},${b})`;
+                        alpha = a ? parseFloat(a) : 1.0;
+                    }
                 } else {
-                    rgbaValue = values.fontColor;
-                }
-                console.log("rgbaValue", rgbaValue);
-                const regex = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/;
-                const matches = rgbaValue.match(regex);
-                if (matches) {
-                    const [, r, g, b, a] = matches;
+                    let r = values.fontColor.metaColor.r.toFixed(1);
+                    let g = values.fontColor.metaColor.g.toFixed(1);
+                    let b = values.fontColor.metaColor.b.toFixed(1);
+                    let a = values.fontColor.metaColor.a ? values.fontColor.metaColor.a.toFixed(1) : 1.0;
                     rgb = `(${r},${g},${b})`;
-                    alpha = a ? parseFloat(a) : 1.0;
+                    alpha = a;
                 }
+
                 let bothConfig: AxiosRequestConfig = {
                     headers: {
                         'Content-Type': 'multipart/form-data',
@@ -693,7 +716,7 @@ const AddWaterMarkPage: React.FC = () => {
                                 <ColorPicker
                                     value={colorRgb} // 受控属性 value
                                     onChange={setColorRgb}
-                                    trigger={"hover"} defaultFormat={"rgb"} format={"rgb"} showText={true}/>
+                                    trigger={"hover"}  format={"rgb"} showText={true}/>
                             </Form.Item>
                             <Form.Item name="fontSize" label="字体大小"
                                        rules={[
@@ -731,6 +754,12 @@ const AddWaterMarkPage: React.FC = () => {
                                         {value: '120', label: '120°'},
                                         {value: '150', label: '150°'},
                                         {value: '180', label: '180°'},
+                                        {value: '210', label: '210°'},
+                                        {value: '240', label: '240°'},
+                                        {value: '270', label: '270°'},
+                                        {value: '300', label: '300°'},
+                                        {value: '330', label: '330°'},
+                                        {value: '360', label: '360°'},
                                     ]}
                                 />
                             </Form.Item>
