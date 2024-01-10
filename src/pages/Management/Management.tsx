@@ -58,12 +58,13 @@ const Management: React.FC = () => {
     useEffect(() => {
         const fetchUserInfo = async (username: string, password: string) => {
             let infoConfig: AxiosRequestConfig = {
+                headers: {
+                    //'contentType': "application/json",
+                    'Content-Type': 'application/json',
+                },
                 data: {
                     uid: username,
                     password: password,
-                },
-                headers: {
-                    contentType: "application/json",
                 }
             };
             return await axios.post(

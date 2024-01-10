@@ -304,10 +304,13 @@ const AddWaterMarkPage: React.FC = () => {
                             blob = new Blob([arrayBuffer], {type: 'image/png'});
                         } else if (values.file.file.type == 'image/jpg') {
                             blob = new Blob([arrayBuffer], {type: 'image/jpg'});
+                        } else if (values.file.file.type == 'image/jpeg') {
+                            blob = new Blob([arrayBuffer], {type: 'image/jpeg'});
                         }
                         // 将 ArrayBuffer 转换为 Blob
                         // 创建一个 URL 对象，指向该 Blob 对象
                         const url = window.URL.createObjectURL(blob);
+                        //const url = window.URL.createObjectURL(new Blob([blob],{type:'application/pdf/jpg/jpeg/png.'}))
 
                         // 创建一个链接并模拟点击下载
                         const link = document.createElement('a');
@@ -391,6 +394,8 @@ const AddWaterMarkPage: React.FC = () => {
                             blob = new Blob([arrayBuffer], {type: 'image/png'});
                         } else if (values.file.file.type == 'image/jpeg') {
                             blob = new Blob([arrayBuffer], {type: 'image/jpeg'});
+                        } else if (values.file.file.type == 'image/jpg') {
+                            blob = new Blob([arrayBuffer], {type: 'image/jpg'});
                         }
 
 

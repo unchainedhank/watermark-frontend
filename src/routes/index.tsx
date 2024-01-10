@@ -70,7 +70,8 @@ export function routeRules() {
         },
         {
           path: '/management',
-          element: <ManagementPage />
+          //element: <ManagementPage />
+          element:  <Suspense children={<ManagementPage />}/>
         },
 
         {
