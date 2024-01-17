@@ -27,9 +27,9 @@ const Footer = () => {
       {/*  </Link>*/}
       {/*</Text>*/}
       <br />
-      <Link href="https://github.com/xstnet" target="_blank">
-        <Text type="secondary">信息工程研究所</Text>
-      </Link>
+      {/*<Link href="https://github.com/xstnet" target="_blank">*/}
+      {/*  <Text type="secondary">信息工程研究所</Text>*/}
+      {/*</Link>*/}
       <Text type="secondary">
         ©2023 Created by
         <Link
