@@ -4,7 +4,7 @@ import React, {useContext} from "react";
 import axios from "axios";
 import {GlobalContext} from "@/contexts/Global";
 import {userInfo} from "os";
-const apiUrl = 'http://39.96.137.165:30099';
+const apiUrl = 'wm_container:3000';
 
 const UserCenterUpdatePage: React.FC = () => {
 

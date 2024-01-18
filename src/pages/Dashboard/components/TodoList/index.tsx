@@ -11,7 +11,7 @@ import React, {useContext, useEffect, useState} from "react";
 import axios, {AxiosResponse} from "axios";
 import {AxiosRequestConfig} from "axios/index";
 import {GlobalContext} from "@/contexts/Global";
-const apiUrl = 'http://39.96.137.165:30099';
+const apiUrl = 'wm_container:3000';
 
 type TodoItem = Model.TodoList;
 

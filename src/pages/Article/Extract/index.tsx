@@ -10,7 +10,7 @@ import {
 import React, {useState} from 'react';
 import {UploadOutlined} from '@ant-design/icons';
 import axios, {AxiosRequestConfig} from "axios";
-const apiUrl = 'http://39.96.137.165:30099';
+const apiUrl = 'wm_container:3000';
 
 const ExtractWaterMarkPage: React.FC = () => {
 

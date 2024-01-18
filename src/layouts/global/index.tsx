@@ -18,7 +18,7 @@ import './fixed-layout.less';
 import {useUpdateEffect} from 'ahooks';
 import Cache from "@/utils/cache";
 import {userInfo} from "os";
-const apiUrl = 'http://39.96.137.165:30099';
+const apiUrl = 'wm_container:3000';
 
 const GlobalLayout: React.FC = () => {
     const [getUserInfoLoading, setGetUserInfoLoading] = useState(true);

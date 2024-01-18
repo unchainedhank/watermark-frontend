@@ -5,7 +5,7 @@ import {Simulate} from "react-dom/test-utils";
 import axios from "axios";
 import {GlobalContext} from "@/contexts/Global";
 import CustomPasswordInput from "@page/Register/input";
-const apiUrl = 'http://39.96.137.165:30099';
+const apiUrl = 'wm_container:3000';
 
 const onFinishFailed = (values: any) => {
     message.error("注册失败");
