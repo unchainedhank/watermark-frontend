@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import axios, {AxiosRequestConfig} from "axios";
 import {GlobalContext} from "@/contexts/Global";
-const apiUrl = 'wm_container:3000';
+const apiUrl = process.env.API_URL;
 
 interface useStaticMap {
     [key: string]: number;

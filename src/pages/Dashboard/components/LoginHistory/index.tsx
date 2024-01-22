@@ -8,7 +8,7 @@ import {Link} from 'react-router-dom';
 import {useContext, useEffect, useState} from "react";
 import {GlobalContext} from "@/contexts/Global";
 import axios, {AxiosRequestConfig} from "axios";
-const apiUrl = 'wm_container:3000';
+const apiUrl = process.env.API_URL;
 
 const LoginHistory: React.FC<{}> = () => {
 

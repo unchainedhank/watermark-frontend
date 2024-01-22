@@ -8,7 +8,7 @@ import {useContext, useEffect, useState} from "react";
 import axios, {AxiosRequestConfig} from "axios";
 import {GlobalContext} from "@/contexts/Global";
 import UserInfo = Api.UserInfo;
-const apiUrl = 'wm_container:3000';
+const apiUrl = process.env.API_URL;
 
 
 

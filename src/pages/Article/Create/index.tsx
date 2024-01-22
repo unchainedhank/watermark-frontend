@@ -22,7 +22,7 @@ import {userInfo} from "os";
 import UserInfo = Api.UserInfo;
 import {GlobalContext} from "@/contexts/Global";
 
-const apiUrl = 'wm_container:3000';
+const apiUrl = 'wm_container:3000/api';
 
 const {Paragraph} = Typography;
 

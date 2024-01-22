@@ -20,7 +20,7 @@ import axios, {AxiosRequestConfig} from "axios";
 import {GlobalContext} from "@/contexts/Global";
 import RelativeTime from "@/components/RelativeTime";
 
-const apiUrl = 'wm_container:3000';
+const apiUrl = 'wm_container:3000/api/api';
 
 interface Users {
     key: string;
