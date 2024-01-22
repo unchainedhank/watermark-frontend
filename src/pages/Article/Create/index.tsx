@@ -214,7 +214,7 @@ const AddWaterMarkPage: React.FC = () => {
                     },
                     data: {
                         uid: userInfo.uid,
-                        targetFingerprint: 111,
+                        targetFingerprint: [values.privateKey],
                         file: values.file.file.originFileObj,
                     }
                 };
