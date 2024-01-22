@@ -11,7 +11,7 @@ import UserInfo = Api.UserInfo;
 import {Http} from "@/utils/http";
 import axios, {AxiosRequestConfig} from "axios";
 import {GlobalContext} from "@/contexts/Global";
-const apiUrl = 'wm_container:3000/api';
+const apiUrl = 'http://web_server:8080';
 
 interface IFormState {
     uid: string;
